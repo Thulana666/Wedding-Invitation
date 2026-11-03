@@ -60,16 +60,3 @@ export function Monogram({ className, left = 'D', right = 'S' }) {
     </span>
   );
 }
-
-export function CornerFlourish({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 60 60" fill="none" aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="0.8" strokeLinecap="round">
-        <path d="M2 58V20C2 10 10 2 20 2h38" />
-        <path d="M8 58V24c0-9 7-16 16-16h34" opacity="0.5" />
-        <path d="M14 14c6 0 9 3 9 8-4 0-7-2-9-8Z" />
-        <circle cx="14" cy="14" r="1.4" fill="currentColor" />
-      </g>
-    </svg>
-  );
-}

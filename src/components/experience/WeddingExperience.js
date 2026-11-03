@@ -24,7 +24,8 @@ const OPENED_KEY = 'ds-opened';
 function Experience({ invitation, inviteNotFound }) {
   // intro → opening (animation running) → open
   const [phase, setPhase] = useState('intro');
-  const [heroDelay, setHeroDelay] = useState(1.05);
+  // The hero starts revealing as the opening camera move passes through the doors.
+  const [heroDelay, setHeroDelay] = useState(3.2);
   const [toast, setToast] = useState(inviteNotFound);
   const music = useMusic();
 
@@ -76,7 +77,6 @@ function Experience({ invitation, inviteNotFound }) {
 
       {phase !== 'open' && (
         <InvitationIntro
-          guestName={invitation?.fullName}
           defaultMusic={music.preference !== 'off'}
           onOpen={handleOpen}
           onDone={handleDone}
