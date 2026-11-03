@@ -53,22 +53,25 @@ The RSVP asks for: name, contact number, email (optional), attending or not, acc
 
 Sign in at `/admin/login`. *Overview* shows the totals and charts; *Guests* lists every reply (click a name for all details). Use *Export CSV* to download the complete list, confirmed, declined, awaiting-reply or event-attendance lists.
 
-## Deploying (e.g. Vercel + Neon Postgres)
+## Deploying on Vercel
 
-1. Create a Postgres database (Neon, Supabase, Railway…) and copy its connection string.
-2. Import this repository into Vercel and set these environment variables:
+1. **Import the project.** Sign in at vercel.com with GitHub → *Add New… → Project* → import `Wedding-Invitation`. Vercel detects Next.js automatically.
+2. **Add environment variables** (on the import screen, or later under *Settings → Environment Variables*):
 
    | Variable | Value |
    | --- | --- |
-   | `NEXT_PUBLIC_SITE_URL` | Your final URL, e.g. `https://dilkiandsupun.com` (used for WhatsApp previews and invitation links) |
-   | `DATABASE_URL` | Postgres connection string |
-   | `ADMIN_USERNAME` | Admin username |
-   | `ADMIN_PASSWORD_HASH` | Output of `node scripts/hash-password.mjs "a long password"` (or `ADMIN_PASSWORD`, min. 12 characters) |
+   | `ADMIN_USERNAME` | Admin username, e.g. `admin` |
+   | `ADMIN_PASSWORD` | A password of at least 12 characters (or `ADMIN_PASSWORD_HASH` from `node scripts/hash-password.mjs "your password"`) |
    | `AUTH_SECRET` | 32+ random characters: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
 
-3. Deploy. Tables are created automatically on first request.
+   Then press **Deploy**.
+3. **Add the database.** In the project open *Storage → Create Database → Neon (Serverless Postgres)*, choose the free plan and the **Singapore** region, and connect it to the project. This adds `DATABASE_URL` automatically. Tables are created on the first request.
+4. **Redeploy** (*Deployments → ⋯ → Redeploy*) so the new database variable is used.
+5. Open the site, send a test RSVP, and sign in at `/admin/login`.
 
-Share `NEXT_PUBLIC_SITE_URL` on WhatsApp — the preview image is generated at `/opengraph-image`.
+The site runs in Vercel's Singapore region (`vercel.json`), close to guests in Sri Lanka. Links and the WhatsApp preview use the Vercel address automatically. If you add a custom domain (*Settings → Domains*), also set `NEXT_PUBLIC_SITE_URL` to it (e.g. `https://dilkiandsupun.com`) and redeploy.
+
+Every push to `main` on GitHub redeploys the site automatically.
 
 ## Security
 

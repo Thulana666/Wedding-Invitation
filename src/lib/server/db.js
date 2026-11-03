@@ -4,7 +4,8 @@ import path from 'node:path';
 /**
  * Database access.
  *
- * - With DATABASE_URL set, connects to PostgreSQL through `pg` (production).
+ * - With DATABASE_URL (or POSTGRES_URL, as set by Vercel's Postgres
+ *   integrations) set, connects to PostgreSQL through `pg` (production).
  * - Without it, uses PGlite — a full Postgres engine embedded in Node — stored
  *   in ./.data/pglite, so local development needs no database install.
  *
@@ -38,7 +39,7 @@ CREATE INDEX IF NOT EXISTS guests_first_responded_idx ON guests (first_responded
 `;
 
 async function connect() {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
   if (url) {
     const { Pool } = await import('pg');
