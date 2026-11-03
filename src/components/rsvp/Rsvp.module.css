@@ -315,7 +315,6 @@ textarea.input {
 }
 
 .choice input,
-.chip input,
 .check input {
   position: absolute;
   opacity: 0;
@@ -323,7 +322,6 @@ textarea.input {
 }
 
 .choice:has(input:focus-visible),
-.chip:has(input:focus-visible),
 .check:has(input:focus-visible) {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
@@ -461,10 +459,6 @@ textarea.input {
   transition: background 0.25s, box-shadow 0.25s;
 }
 
-.radio .box {
-  border-radius: 50%;
-}
-
 .check.selected {
   background: var(--white);
   box-shadow: inset 0 0 0 1.5px var(--gold);
@@ -485,44 +479,6 @@ textarea.input {
   border: solid var(--espresso-deep);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-}
-
-.radio.selected .box::after {
-  left: 6px;
-  top: 6px;
-  width: 10px;
-  height: 10px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--espresso-deep);
-  transform: none;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: inset 0 0 0 1px rgba(53, 43, 43, 0.12);
-  transition: background 0.25s, box-shadow 0.25s, color 0.25s;
-}
-
-.chip.selected {
-  color: var(--ivory);
-  background: var(--espresso);
-  box-shadow: none;
 }
 
 /* Review */
@@ -613,15 +569,12 @@ textarea.input {
   color: var(--ink-soft);
 }
 
-.pass {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  width: min(100%, 520px);
+.summary {
+  width: min(100%, 480px);
   margin-top: 18px;
-  padding: 20px;
+  padding: 22px 24px;
   border-radius: 22px;
-  text-align: left;
+  text-align: center;
   color: var(--ivory);
   background:
     radial-gradient(90% 80% at 100% 0%, rgba(197, 164, 90, 0.3), transparent 60%),
@@ -629,12 +582,7 @@ textarea.input {
   box-shadow: 0 30px 50px -30px rgba(36, 28, 28, 0.8);
 }
 
-.passInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.passLabel {
+.summaryLabel {
   margin: 0 0 6px;
   font-size: 10px;
   font-weight: 700;
@@ -643,61 +591,17 @@ textarea.input {
   color: var(--gold-light);
 }
 
-.passName {
+.summaryName {
   margin: 0;
   font-family: var(--font-display);
   font-size: 26px;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
-.passMeta {
+.summaryMeta {
   margin: 4px 0 0;
   font-size: 13px;
-  color: rgba(248, 245, 239, 0.7);
-}
-
-.passCode {
-  margin: 12px 0 0;
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
-  font-size: 13px;
-  letter-spacing: 0.16em;
-  color: var(--gold-light);
-}
-
-.qr {
-  flex: none;
-  width: 132px;
-  height: 132px;
-  padding: 8px;
-  border-radius: 14px;
-  background: var(--white);
-}
-
-.qr img {
-  width: 100%;
-  height: 100%;
-}
-
-.qrLoading {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #eee 25%, #f7f7f7 50%, #eee 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
-.passHint {
-  margin: 0;
-  font-size: 13px;
-  color: var(--ink-muted);
+  color: rgba(248, 245, 239, 0.72);
 }
 
 .doneActions {
@@ -762,10 +666,6 @@ textarea.input {
   }
   .choices {
     grid-template-columns: 1fr;
-  }
-  .pass {
-    flex-direction: column-reverse;
-    text-align: center;
   }
   .review div {
     grid-template-columns: 1fr;

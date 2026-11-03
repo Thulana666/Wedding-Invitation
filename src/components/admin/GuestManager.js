@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { wedding } from '@/config/wedding';
-import { dietaryLabel, partySize, transportLabel } from '@/lib/rsvp';
+import { partySize } from '@/lib/rsvp';
 import GuestForm from './GuestForm';
 import Modal from './Modal';
 import { EXPORTS } from './Overview';
 import styles from './Admin.module.css';
 
 const STATUS_LABEL = { pending: 'Pending', attending: 'Attending', declined: 'Declined' };
-const DEFAULT_QUERY = { search: '', status: '', dietary: '', transport: '', event: '', checkedIn: '', sort: 'created', dir: 'desc', page: 1, pageSize: 20 };
+const DEFAULT_QUERY = { search: '', status: '', event: '', sort: 'created', dir: 'desc', page: 1, pageSize: 20 };
 
 const shortDate = (iso) =>
   iso ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: wedding.date.timezone }).format(new Date(iso)) : '—';
@@ -80,7 +80,7 @@ export default function GuestManager({ openNew }) {
     </th>
   );
 
-  const filtersActive = ['status', 'dietary', 'transport', 'event', 'checkedIn'].some((k) => query[k]) || query.search;
+  const filtersActive = ['status', 'event'].some((k) => query[k]) || query.search;
 
   return (
     <div className={styles.page}>
@@ -129,22 +129,6 @@ export default function GuestManager({ openNew }) {
           <option value="pending">Pending</option>
           <option value="responded">Responded</option>
         </select>
-        <select aria-label="Filter by meal" value={query.dietary} onChange={(e) => setFilter('dietary', e.target.value)}>
-          <option value="">All meals</option>
-          {wedding.rsvp.dietaryOptions.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <select aria-label="Filter by transport" value={query.transport} onChange={(e) => setFilter('transport', e.target.value)}>
-          <option value="">All transport</option>
-          {wedding.rsvp.transportOptions.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
         <select aria-label="Filter by event" value={query.event} onChange={(e) => setFilter('event', e.target.value)}>
           <option value="">All events</option>
           {wedding.events.map((ev) => (
@@ -152,11 +136,6 @@ export default function GuestManager({ openNew }) {
               {ev.title}
             </option>
           ))}
-        </select>
-        <select aria-label="Filter by check-in" value={query.checkedIn} onChange={(e) => setFilter('checkedIn', e.target.value)}>
-          <option value="">Any check-in</option>
-          <option value="yes">Checked in</option>
-          <option value="no">Not yet arrived</option>
         </select>
         {filtersActive && (
           <button
@@ -182,10 +161,8 @@ export default function GuestManager({ openNew }) {
                 <th>Contact</th>
                 {sortHead('status', 'Status')}
                 {sortHead('party', 'Party')}
-                <th>Meal &amp; allergies</th>
-                <th>Transport</th>
+                <th>Allergies &amp; notes</th>
                 {sortHead('responded', 'Replied')}
-                {sortHead('checkedIn', 'Check-in')}
                 <th>
                   <span className="sr-only">Actions</span>
                 </th>
@@ -194,7 +171,7 @@ export default function GuestManager({ openNew }) {
             <tbody aria-busy={loading}>
               {!loading && data.guests.length === 0 && (
                 <tr>
-                  <td colSpan={9} className={styles.emptyRow}>
+                  <td colSpan={7} className={styles.emptyRow}>
                     {filtersActive ? 'No guests match these filters.' : 'No guests yet — add your first guest or share the RSVP link.'}
                   </td>
                 </tr>
@@ -230,17 +207,12 @@ export default function GuestManager({ openNew }) {
                     {g.status === 'attending' ? partySize(g) : '—'}
                     <span className={styles.sub}>of {g.maxGuests}</span>
                   </td>
-                  <td>
-                    {g.status === 'attending' ? dietaryLabel(g.dietary) || '—' : '—'}
-                    {g.dietaryNotes && <span className={styles.sub}>{g.dietaryNotes}</span>}
-                    {g.allergies && <span className={`${styles.sub} ${styles.allergy}`}>⚠ {g.allergies}</span>}
-                  </td>
-                  <td>
-                    {g.status === 'attending' ? transportLabel(g.transport) || '—' : '—'}
-                    {g.transportNotes && <span className={styles.sub}>{g.transportNotes}</span>}
+                  <td className={styles.notesCell}>
+                    {g.allergies && <span className={styles.allergy}>⚠ {g.allergies}</span>}
+                    {g.notes && <span className={styles.sub}>{g.notes}</span>}
+                    {!g.allergies && !g.notes && '—'}
                   </td>
                   <td>{shortDate(g.respondedAt)}</td>
-                  <td>{g.checkedInAt ? <span className={styles.checked}>✓ {g.checkedInCount}</span> : '—'}</td>
                   <td className={styles.rowActions}>
                     <button type="button" className={styles.linkBtn} onClick={() => setEditing(g)}>
                       Edit

@@ -11,9 +11,6 @@
   --series-attending: #a8780f;
   --series-declined: #2a78d6;
   --series-track: #ebe3d6;
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-critical: #d03b3b;
   min-height: 100dvh;
   background: var(--a-bg);
   color: var(--a-text);

@@ -24,18 +24,12 @@ CREATE TABLE IF NOT EXISTS guests (
   companions         INTEGER NOT NULL DEFAULT 0 CHECK (companions >= 0),
   companion_names    JSONB NOT NULL DEFAULT '[]'::jsonb,
   events             JSONB NOT NULL DEFAULT '[]'::jsonb,
-  dietary            TEXT,
-  dietary_notes      TEXT,
   allergies          TEXT,
-  transport          TEXT,
-  transport_notes    TEXT,
   notes              TEXT,
   admin_notes        TEXT,
   source             TEXT NOT NULL DEFAULT 'admin' CHECK (source IN ('admin', 'open')),
   first_responded_at TIMESTAMPTZ,
   responded_at       TIMESTAMPTZ,
-  checked_in_at      TIMESTAMPTZ,
-  checked_in_count   INTEGER,
   created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at         TIMESTAMPTZ NOT NULL DEFAULT now()
 );

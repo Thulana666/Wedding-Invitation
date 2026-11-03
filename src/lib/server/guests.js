@@ -45,18 +45,12 @@ export function toGuest(row) {
     companions: row.companions,
     companionNames: jsonArray(row.companion_names),
     events: jsonArray(row.events),
-    dietary: row.dietary || '',
-    dietaryNotes: row.dietary_notes || '',
     allergies: row.allergies || '',
-    transport: row.transport || '',
-    transportNotes: row.transport_notes || '',
     notes: row.notes || '',
     adminNotes: row.admin_notes || '',
     source: row.source,
     firstRespondedAt: iso(row.first_responded_at),
     respondedAt: iso(row.responded_at),
-    checkedInAt: iso(row.checked_in_at),
-    checkedInCount: row.checked_in_count,
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),
   };
@@ -65,8 +59,8 @@ export function toGuest(row) {
 /** The subset a guest may see about their own invitation. */
 export function toPublicGuest(guest) {
   if (!guest) return null;
-  const { id, adminNotes, source, createdAt, updatedAt, firstRespondedAt, checkedInCount, ...rest } = guest;
-  return { ...rest, checkedIn: Boolean(guest.checkedInAt) };
+  const { id, adminNotes, source, createdAt, updatedAt, firstRespondedAt, ...rest } = guest;
+  return rest;
 }
 
 export async function getGuestByCode(code) {
@@ -94,9 +88,7 @@ async function insertWithUniqueCode(buildQuery) {
   throw new Error('Could not generate a unique invitation code.');
 }
 
-const RESPONSE_COLUMNS = `
-  status, companions, companion_names, events, dietary, dietary_notes, allergies,
-  transport, transport_notes, notes`;
+const RESPONSE_COLUMNS = 'status, companions, companion_names, events, allergies, notes';
 
 function responseValues(data) {
   const attending = data.attending === 'yes';
@@ -105,11 +97,7 @@ function responseValues(data) {
     attending ? data.companions : 0,
     JSON.stringify(attending ? data.companionNames : []),
     JSON.stringify(attending ? data.events : []),
-    attending ? data.dietary || null : null,
-    attending ? data.dietaryNotes || null : null,
     attending ? data.allergies || null : null,
-    attending ? data.transport || null : null,
-    attending ? data.transportNotes || null : null,
     data.notes || null,
   ];
 }
@@ -119,7 +107,7 @@ export async function createOpenRsvp(data) {
   return insertWithUniqueCode((code) => [
     `INSERT INTO guests (code, full_name, phone, email, max_guests, source, ${RESPONSE_COLUMNS},
        first_responded_at, responded_at)
-     VALUES ($1, $2, $3, $4, $5, 'open', $6, $7, $8::jsonb, $9::jsonb, $10, $11, $12, $13, $14, $15, now(), now())
+     VALUES ($1, $2, $3, $4, $5, 'open', $6, $7, $8::jsonb, $9::jsonb, $10, $11, now(), now())
      RETURNING *`,
     [code, data.fullName, data.phone, data.email || null, wedding.rsvp.defaultMaxGuests, ...responseValues(data)],
   ]);
@@ -131,11 +119,10 @@ export async function updateRsvp(code, data) {
     `UPDATE guests SET
        full_name = $2, phone = $3, email = $4,
        status = $5, companions = $6, companion_names = $7::jsonb, events = $8::jsonb,
-       dietary = $9, dietary_notes = $10, allergies = $11, transport = $12,
-       transport_notes = $13, notes = $14,
+       allergies = $9, notes = $10,
        first_responded_at = COALESCE(first_responded_at, now()),
        responded_at = now(), updated_at = now()
-     WHERE code = $1 AND checked_in_at IS NULL
+     WHERE code = $1
      RETURNING *`,
     [code, data.fullName, data.phone, data.email || null, ...responseValues(data)],
   );
@@ -147,7 +134,7 @@ export async function createGuest(data) {
   return insertWithUniqueCode((code) => [
     `INSERT INTO guests (code, full_name, phone, email, max_guests, admin_notes, source, ${RESPONSE_COLUMNS},
        first_responded_at, responded_at)
-     VALUES ($1, $2, $3, $4, $5, $6, 'admin', $7, $8, $9::jsonb, $10::jsonb, $11, $12, $13, $14, $15, $16,
+     VALUES ($1, $2, $3, $4, $5, $6, 'admin', $7, $8, $9::jsonb, $10::jsonb, $11, $12,
        CASE WHEN $7::text = 'pending' THEN NULL ELSE now() END,
        CASE WHEN $7::text = 'pending' THEN NULL ELSE now() END)
      RETURNING *`,
@@ -162,11 +149,7 @@ function adminResponseValues(data) {
     attending ? data.companions : 0,
     JSON.stringify(attending ? data.companionNames : []),
     JSON.stringify(attending ? data.events : []),
-    attending ? data.dietary || null : null,
-    attending ? data.dietaryNotes || null : null,
     attending ? data.allergies || null : null,
-    attending ? data.transport || null : null,
-    attending ? data.transportNotes || null : null,
     data.notes || null,
   ];
 }
@@ -177,13 +160,10 @@ export async function updateGuest(id, data) {
     `UPDATE guests SET
        full_name = $2, phone = $3, email = $4, max_guests = $5, admin_notes = $6,
        status = $7, companions = $8, companion_names = $9::jsonb, events = $10::jsonb,
-       dietary = $11, dietary_notes = $12, allergies = $13, transport = $14,
-       transport_notes = $15, notes = $16,
+       allergies = $11, notes = $12,
        first_responded_at = CASE WHEN $7::text = 'pending' THEN first_responded_at ELSE COALESCE(first_responded_at, now()) END,
        responded_at = CASE WHEN $7::text = status AND responded_at IS NOT NULL THEN responded_at
                            WHEN $7::text = 'pending' THEN NULL ELSE now() END,
-       checked_in_at = CASE WHEN $7::text = 'attending' THEN checked_in_at ELSE NULL END,
-       checked_in_count = CASE WHEN $7::text = 'attending' THEN checked_in_count ELSE NULL END,
        updated_at = now()
      WHERE id = $1
      RETURNING *`,
@@ -203,16 +183,12 @@ const SORTS = {
   party: '(CASE WHEN status = \'attending\' THEN 1 + companions ELSE 0 END)',
   responded: 'responded_at',
   created: 'created_at',
-  checkedIn: 'checked_in_at',
 };
 
 export async function listGuests({
   search = '',
   status = '',
-  dietary = '',
-  transport = '',
   event = '',
-  checkedIn = '',
   source = '',
   sort = 'created',
   dir = 'desc',
@@ -234,11 +210,7 @@ export async function listGuests({
   }
   if (['pending', 'attending', 'declined'].includes(status)) add('status = ?', status);
   if (status === 'responded') where.push(`status <> 'pending'`);
-  if (dietary) add('dietary = ?', dietary);
-  if (transport) add('transport = ?', transport);
   if (event) add('events @> ?::jsonb', JSON.stringify([event]));
-  if (checkedIn === 'yes') where.push('checked_in_at IS NOT NULL');
-  if (checkedIn === 'no') where.push(`checked_in_at IS NULL AND status = 'attending'`);
   if (['admin', 'open'].includes(source)) add('source = ?', source);
 
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
@@ -267,7 +239,7 @@ export async function allGuests() {
 }
 
 export async function getStats() {
-  const [{ rows: totals }, { rows: trend }, { rows: sizes }, { rows: dietary }, { rows: transport }, { rows: events }] =
+  const [{ rows: totals }, { rows: trend }, { rows: sizes }, { rows: events }] =
     await Promise.all([
       query(`
         SELECT
@@ -278,9 +250,7 @@ export async function getStats() {
           count(*) FILTER (WHERE status = 'declined')::int AS declined,
           count(*) FILTER (WHERE status = 'pending')::int AS pending,
           coalesce(sum(companions) FILTER (WHERE status = 'attending'), 0)::int AS companions,
-          coalesce(sum(1 + companions) FILTER (WHERE status = 'attending'), 0)::int AS expected,
-          count(*) FILTER (WHERE checked_in_at IS NOT NULL)::int AS checked_in_parties,
-          coalesce(sum(checked_in_count) FILTER (WHERE checked_in_at IS NOT NULL), 0)::int AS checked_in_people
+          coalesce(sum(1 + companions) FILTER (WHERE status = 'attending'), 0)::int AS expected
         FROM guests`),
       query(`
         SELECT to_char(first_responded_at AT TIME ZONE 'Asia/Colombo', 'YYYY-MM-DD') AS day,
@@ -292,35 +262,10 @@ export async function getStats() {
         SELECT (1 + companions)::int AS size, count(*)::int AS parties
         FROM guests WHERE status = 'attending' GROUP BY 1 ORDER BY 1`),
       query(`
-        SELECT coalesce(dietary, 'none') AS id, count(*)::int AS parties, sum(1 + companions)::int AS people
-        FROM guests WHERE status = 'attending' GROUP BY 1`),
-      query(`
-        SELECT coalesce(transport, 'own') AS id, count(*)::int AS parties, sum(1 + companions)::int AS people
-        FROM guests WHERE status = 'attending' GROUP BY 1`),
-      query(`
         SELECT e.id, sum(1 + g.companions)::int AS people, count(*)::int AS parties
         FROM guests g, jsonb_array_elements_text(g.events) AS e(id)
         WHERE g.status = 'attending' GROUP BY 1`),
     ]);
 
-  return { totals: totals[0], trend, sizes, dietary, transport, events };
-}
-
-/** Atomically checks in a confirmed invitation. Never checks in twice. */
-export async function checkInGuest(code, count) {
-  const { rows } = await query(
-    `UPDATE guests SET checked_in_at = now(), checked_in_count = $2, updated_at = now()
-     WHERE code = $1 AND status = 'attending' AND checked_in_at IS NULL
-     RETURNING *`,
-    [code, count],
-  );
-  return toGuest(rows[0]);
-}
-
-export async function undoCheckIn(id) {
-  const { rows } = await query(
-    `UPDATE guests SET checked_in_at = NULL, checked_in_count = NULL, updated_at = now() WHERE id = $1 RETURNING *`,
-    [id],
-  );
-  return toGuest(rows[0]);
+  return { totals: totals[0], trend, sizes, events };
 }

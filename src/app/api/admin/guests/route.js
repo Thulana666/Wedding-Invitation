@@ -13,10 +13,7 @@ export const GET = handle(async (request) => {
   const result = await listGuests({
     search: (p.get('search') || '').slice(0, 100),
     status: p.get('status') || '',
-    dietary: p.get('dietary') || '',
-    transport: p.get('transport') || '',
     event: p.get('event') || '',
-    checkedIn: p.get('checkedIn') || '',
     source: p.get('source') || '',
     sort: p.get('sort') || 'created',
     dir: p.get('dir') || 'desc',

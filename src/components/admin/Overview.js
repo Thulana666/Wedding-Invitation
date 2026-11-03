@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { wedding } from '@/config/wedding';
-import { dietaryLabel, eventLabel, transportLabel } from '@/lib/rsvp';
+import { eventLabel } from '@/lib/rsvp';
 import { getCountdown } from '@/lib/countdown';
 import { BarList, ColumnChart, ResponseBar, TrendChart } from './Charts';
 import styles from './Admin.module.css';
@@ -13,14 +13,12 @@ export const EXPORTS = [
   { list: 'confirmed', label: 'Confirmed guests' },
   { list: 'declined', label: 'Declined guests' },
   { list: 'pending', label: 'Awaiting reply' },
-  { list: 'dietary', label: 'Dietary requirements' },
-  { list: 'transport', label: 'Transportation list' },
   { list: 'events', label: 'Event attendance' },
 ];
 
-function Kpi({ label, value, sub, accent }) {
+function Kpi({ label, value, sub, accent, wide }) {
   return (
-    <div className={`${styles.kpi} ${accent ? styles.kpiAccent : ''}`}>
+    <div className={`${styles.kpi} ${accent ? styles.kpiAccent : ''} ${wide ? styles.kpiWide : ''}`}>
       <span className={styles.kpiLabel}>{label}</span>
       <strong className={styles.kpiValue}>{value}</strong>
       {sub && <span className={styles.kpiSub}>{sub}</span>}
@@ -82,8 +80,7 @@ export default function Overview({ initialStats }) {
         <Kpi label="Declined" value={t.declined} />
         <Kpi label="Pending responses" value={t.pending} />
         <Kpi label="Accompanying guests" value={t.companions} />
-        <Kpi label="Expected attendance" value={t.expected} sub="guests incl. companions" accent />
-        <Kpi label="Checked in" value={t.checked_in_people} sub={`${t.checked_in_parties} parties arrived`} />
+        <Kpi label="Expected attendance" value={t.expected} sub="guests incl. companions" accent wide />
       </section>
 
       <div className={styles.grid2}>
@@ -98,7 +95,6 @@ export default function Overview({ initialStats }) {
             items={[
               { label: 'Seats allocated', value: t.seats },
               { label: 'Expected guests', value: t.expected },
-              { label: 'Checked in', value: t.checked_in_people },
             ]}
           />
         </section>
@@ -109,42 +105,32 @@ export default function Overview({ initialStats }) {
         <TrendChart trend={stats.trend} />
       </section>
 
-      <div className={styles.grid3}>
+      <div className={styles.grid2}>
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Party size</h2>
-          <ColumnChart items={stats.sizes.map((s) => ({ label: String(s.size), value: s.parties }))} xLabel="Guests per party" yLabel="Parties" />
+          <ColumnChart items={stats.sizes.map((x) => ({ label: String(x.size), value: x.parties }))} xLabel="Guests per party" yLabel="Parties" />
         </section>
-        <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Meal preferences</h2>
-          <BarList unit="Guests" items={people(stats.dietary, dietaryLabel)} empty="No confirmed guests yet" />
-        </section>
-        <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Transportation</h2>
-          <BarList unit="Guests" items={people(stats.transport, transportLabel)} empty="No confirmed guests yet" />
-        </section>
-      </div>
-
-      <div className={styles.grid2}>
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Event attendance</h2>
           <BarList unit="Guests" items={people(stats.events, eventLabel)} empty="No confirmed guests yet" />
         </section>
-        <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Export lists (CSV)</h2>
-          <ul className={styles.exports}>
-            {EXPORTS.map((e) => (
-              <li key={e.list}>
-                <a href={`/api/admin/export?list=${e.list}`} download>
-                  <span>{e.label}</span>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-                    <path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14" />
-                  </svg>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
+
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>Export lists (CSV)</h2>
+        <ul className={styles.exports}>
+          {EXPORTS.map((e) => (
+            <li key={e.list}>
+              <a href={`/api/admin/export?list=${e.list}`} download>
+                <span>{e.label}</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                  <path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14" />
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

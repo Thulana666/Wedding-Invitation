@@ -1,5 +1,5 @@
 import { wedding } from '@/config/wedding';
-import { dietaryLabel, eventLabel, partySize, transportLabel } from '@/lib/rsvp';
+import { eventLabel, partySize } from '@/lib/rsvp';
 import { requireAdmin } from '@/lib/server/auth';
 import { toCsv } from '@/lib/server/csv';
 import { allGuests } from '@/lib/server/guests';
@@ -28,16 +28,10 @@ const col = {
   companions: { label: 'Accompanying guests', value: (g) => g.companions },
   companionNames: { label: 'Accompanying guest names', value: (g) => g.companionNames },
   events: { label: 'Events', value: (g) => g.events.map(eventLabel) },
-  dietary: { label: 'Meal preference', value: (g) => dietaryLabel(g.dietary) },
-  dietaryNotes: { label: 'Meal notes', value: (g) => g.dietaryNotes },
   allergies: { label: 'Food allergies', value: (g) => g.allergies },
-  transport: { label: 'Transport', value: (g) => transportLabel(g.transport) },
-  transportNotes: { label: 'Transport notes', value: (g) => g.transportNotes },
   notes: { label: 'Guest notes', value: (g) => g.notes },
   adminNotes: { label: 'Admin notes', value: (g) => g.adminNotes },
   responded: { label: 'Responded (Sri Lanka time)', value: (g) => colombo(g.respondedAt) },
-  checkedIn: { label: 'Checked in', value: (g) => colombo(g.checkedInAt) },
-  checkedInCount: { label: 'Checked-in count', value: (g) => g.checkedInCount ?? '' },
   code: { label: 'Invitation code', value: (g) => g.code },
   source: { label: 'Source', value: (g) => (g.source === 'open' ? 'Open RSVP link' : 'Added by admin') },
 };
@@ -48,11 +42,11 @@ const attending = (g) => g.status === 'attending';
 const LISTS = {
   all: {
     filter: () => true,
-    columns: [col.name, col.phone, col.email, col.status, col.allowed, col.party, col.companions, col.companionNames, col.events, col.dietary, col.dietaryNotes, col.allergies, col.transport, col.transportNotes, col.notes, col.adminNotes, col.responded, col.checkedIn, col.checkedInCount, col.code, col.source],
+    columns: [col.name, col.phone, col.email, col.status, col.allowed, col.party, col.companions, col.companionNames, col.events, col.allergies, col.notes, col.adminNotes, col.responded, col.code, col.source],
   },
   confirmed: {
     filter: attending,
-    columns: [col.name, col.phone, col.email, col.party, col.companionNames, col.events, col.dietary, col.allergies, col.transport, col.responded, col.code],
+    columns: [col.name, col.phone, col.email, col.party, col.companionNames, col.events, col.allergies, col.notes, col.responded, col.code],
   },
   declined: {
     filter: (g) => g.status === 'declined',
@@ -61,14 +55,6 @@ const LISTS = {
   pending: {
     filter: (g) => g.status === 'pending',
     columns: [col.name, col.phone, col.email, col.allowed, col.code],
-  },
-  dietary: {
-    filter: attending,
-    columns: [col.name, col.party, col.dietary, col.dietaryNotes, col.allergies, col.companionNames],
-  },
-  transport: {
-    filter: (g) => attending(g) && g.transport && g.transport !== 'own',
-    columns: [col.name, col.phone, col.party, col.transport, col.transportNotes],
   },
   events: {
     filter: attending,

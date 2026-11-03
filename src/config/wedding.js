@@ -105,12 +105,6 @@ export const wedding = {
       title: 'Together',
       text: 'Our story together will be told here — how we met, the moments that brought us closer, and the promise we are about to make.',
     },
-    timeline: [
-      { label: 'The day we met', date: 'Date to be shared', text: 'The first chapter of our story will be written here soon.' },
-      { label: 'Falling in love', date: 'Date to be shared', text: 'The moments that brought us closer will be shared here soon.' },
-      { label: 'The proposal', date: 'Date to be shared', text: 'The story of the question — and the answer — is coming soon.' },
-      { label: 'Forever begins', date: '21 January 2027', text: 'We say “I do” at Saminro Grand Palace, Makola, surrounded by the people we love.', final: true },
-    ],
   },
 
   /** Message revealed inside the envelope. PLACEHOLDER — edit freely. */
@@ -138,19 +132,6 @@ export const wedding = {
     maxGuestsLimit: 12,
     acceptedMessage: "We can't wait to celebrate this special day with you!",
     declinedMessage: "Thank you for letting us know. You'll be missed!",
-    dietaryOptions: [
-      { id: 'none', label: 'No preference' },
-      { id: 'vegetarian', label: 'Vegetarian' },
-      { id: 'vegan', label: 'Vegan' },
-      { id: 'non_vegetarian', label: 'Non-vegetarian' },
-      { id: 'halal', label: 'Halal' },
-      { id: 'other', label: 'Other' },
-    ],
-    transportOptions: [
-      { id: 'own', label: 'I will arrange my own transport' },
-      { id: 'needed', label: 'I would like transport assistance' },
-      { id: 'parking', label: 'I will drive and need parking' },
-    ],
   },
 
   music: {

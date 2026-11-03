@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import QRCode from 'qrcode';
 import { wedding } from '@/config/wedding';
 import Modal from './Modal';
 import styles from './Admin.module.css';
@@ -17,11 +16,7 @@ const blank = {
   companions: 0,
   companionNames: [],
   events: events.map((e) => e.id),
-  dietary: 'none',
-  dietaryNotes: '',
   allergies: '',
-  transport: 'own',
-  transportNotes: '',
   notes: '',
   adminNotes: '',
 };
@@ -30,14 +25,11 @@ const when = (iso) =>
   iso ? new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: wedding.date.timezone }).format(new Date(iso)) : '—';
 
 function InviteLink({ guest }) {
-  const [qr, setQr] = useState('');
   const [copied, setCopied] = useState(false);
   const [url, setUrl] = useState('');
 
   useEffect(() => {
-    const link = `${window.location.origin}/invite/${guest.code}`;
-    setUrl(link);
-    QRCode.toDataURL(link, { margin: 1, width: 480, color: { dark: '#352B2B', light: '#FFFFFF' } }).then(setQr).catch(() => {});
+    setUrl(`${window.location.origin}/invite/${guest.code}`);
   }, [guest.code]);
 
   const copy = async () => {
@@ -54,20 +46,14 @@ function InviteLink({ guest }) {
 
   return (
     <div className={styles.inviteBox}>
-      <div className={styles.inviteQr}>{qr && <img src={qr} alt={`QR code for ${guest.fullName}`} width={120} height={120} />}</div>
       <div className={styles.inviteInfo}>
         <p className={styles.fieldLabel}>Personal invitation link</p>
         <code>{url}</code>
-        <p className={styles.muted}>Code {guest.code} · this QR is also the guest’s entry pass.</p>
+        <p className={styles.muted}>Send this link to the guest — it opens their personal invitation and RSVP.</p>
         <div className={styles.inline}>
           <button type="button" className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={copy}>
             {copied ? 'Copied' : 'Copy link'}
           </button>
-          {qr && (
-            <a className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} href={qr} download={`invite-${guest.code}.png`}>
-              Download QR
-            </a>
-          )}
           <a className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} href={whatsapp} target="_blank" rel="noopener noreferrer">
             Share on WhatsApp
           </a>
@@ -111,19 +97,6 @@ export default function GuestForm({ guest, onClose, onSaved }) {
       else onClose();
     } finally {
       setBusy(false);
-    }
-  };
-
-  const undoCheckIn = async () => {
-    const res = await fetch('/api/admin/checkin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'undo', id: guest.id }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setCurrent(data.guest);
-      onSaved(data.guest, false);
     }
   };
 
@@ -177,17 +150,6 @@ export default function GuestForm({ guest, onClose, onSaved }) {
             <div>
               <dt>Responded</dt>
               <dd>{when(current.respondedAt)}</dd>
-            </div>
-            <div>
-              <dt>Checked in</dt>
-              <dd>
-                {current.checkedInAt ? `${when(current.checkedInAt)} · ${current.checkedInCount} guests` : 'Not yet'}
-                {current.checkedInAt && (
-                  <button type="button" className={styles.linkBtn} onClick={undoCheckIn}>
-                    Undo
-                  </button>
-                )}
-              </dd>
             </div>
           </dl>
         </>
@@ -268,37 +230,9 @@ export default function GuestForm({ guest, onClose, onSaved }) {
                 />
               </label>
             ))}
-            <label className={styles.field}>
-              <span>Meal preference</span>
-              <select value={form.dietary} onChange={(e) => set('dietary', e.target.value)}>
-                {rsvp.dietaryOptions.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.field}>
-              <span>Meal notes</span>
-              <input value={form.dietaryNotes} onChange={(e) => set('dietaryNotes', e.target.value)} />
-            </label>
-            <label className={styles.field}>
+            <label className={`${styles.field} ${styles.span2}`}>
               <span>Food allergies</span>
               <input value={form.allergies} onChange={(e) => set('allergies', e.target.value)} />
-            </label>
-            <label className={styles.field}>
-              <span>Transport</span>
-              <select value={form.transport} onChange={(e) => set('transport', e.target.value)}>
-                {rsvp.transportOptions.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={`${styles.field} ${styles.span2}`}>
-              <span>Transport notes / pickup location</span>
-              <input value={form.transportNotes} onChange={(e) => set('transportNotes', e.target.value)} />
             </label>
           </>
         )}

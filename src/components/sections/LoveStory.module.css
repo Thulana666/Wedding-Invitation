@@ -1,6 +1,6 @@
 .section {
   background: linear-gradient(180deg, var(--ivory) 0%, #f4eee5 100%);
-  padding-bottom: clamp(80px, 10vw, 140px);
+  padding-bottom: 0;
 }
 
 .couple {
@@ -89,7 +89,7 @@
 .together {
   position: relative;
   height: clamp(460px, 80vh, 760px);
-  margin: clamp(80px, 10vw, 140px) 0;
+  margin-top: clamp(80px, 10vw, 140px);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
@@ -126,100 +126,6 @@
   line-height: 1.2;
 }
 
-/* Timeline */
-.timeline {
-  position: relative;
-  list-style: none;
-  margin: 0 auto;
-  padding: 0;
-  max-width: 880px;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 8px;
-  bottom: 8px;
-  width: 1px;
-  background: linear-gradient(180deg, transparent, var(--line) 8%, var(--line) 92%, transparent);
-}
-
-.moment {
-  position: relative;
-  width: 50%;
-  padding: 0 clamp(28px, 5vw, 64px) clamp(44px, 6vw, 72px);
-  text-align: right;
-}
-
-.moment:nth-child(even) {
-  margin-left: 50%;
-  text-align: left;
-}
-
-.node {
-  position: absolute;
-  top: 6px;
-  right: -7px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--ivory);
-  box-shadow: inset 0 0 0 1px var(--gold), 0 0 0 5px var(--ivory);
-}
-
-.node::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border-radius: 50%;
-  background: var(--gold);
-}
-
-.moment:nth-child(even) .node {
-  right: auto;
-  left: -7px;
-}
-
-.momentDate {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--gold-deep);
-}
-
-.momentTitle {
-  margin: 6px 0 8px;
-  font-family: var(--font-display);
-  font-size: clamp(28px, 3vw, 38px);
-  font-weight: 400;
-  line-height: 1.1;
-}
-
-.momentText {
-  margin: 0;
-  color: var(--ink-soft);
-}
-
-.final .momentTitle {
-  font-style: italic;
-  color: var(--gold-deep);
-}
-
-.final .node {
-  width: 18px;
-  height: 18px;
-  right: -9px;
-  background: var(--gold);
-  box-shadow: 0 0 0 6px var(--ivory), 0 0 0 7px var(--line), 0 0 24px 6px rgba(197, 164, 90, 0.5);
-}
-
-.moment.final:nth-child(even) .node {
-  left: -9px;
-}
-
 @media (max-width: 760px) {
   .couple {
     grid-template-columns: 1fr;
@@ -234,24 +140,5 @@
   .ampWrap {
     padding: 0;
     justify-self: center;
-  }
-  .timeline::before {
-    left: 7px;
-  }
-  .moment,
-  .moment:nth-child(even) {
-    width: 100%;
-    margin-left: 0;
-    padding: 0 0 44px 40px;
-    text-align: left;
-  }
-  .node,
-  .moment:nth-child(even) .node {
-    left: 0;
-    right: auto;
-  }
-  .final .node,
-  .moment.final:nth-child(even) .node {
-    left: -2px;
   }
 }

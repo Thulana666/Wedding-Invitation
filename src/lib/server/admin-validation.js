@@ -3,8 +3,6 @@ import { isValidEmail, isValidPhone, normalizePhone } from '@/lib/rsvp';
 
 const STATUSES = ['pending', 'attending', 'declined'];
 const eventIds = wedding.events.map((e) => e.id);
-const dietaryIds = wedding.rsvp.dietaryOptions.map((o) => o.id);
-const transportIds = wedding.rsvp.transportOptions.map((o) => o.id);
 
 const text = (value, max) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
 
@@ -23,11 +21,7 @@ export function validateAdminGuest(input) {
     companions: 0,
     companionNames: [],
     events: [],
-    dietary: '',
-    dietaryNotes: '',
     allergies: '',
-    transport: '',
-    transportNotes: '',
     notes: text(input?.notes, 1000),
     adminNotes: text(input?.adminNotes, 1000),
   };
@@ -51,11 +45,7 @@ export function validateAdminGuest(input) {
       .map((n) => text(n, 120));
     const events = Array.isArray(input?.events) ? input.events.filter((id) => eventIds.includes(id)) : [];
     data.events = events.length ? [...new Set(events)] : [...eventIds];
-    data.dietary = dietaryIds.includes(input?.dietary) ? input.dietary : 'none';
-    data.dietaryNotes = text(input?.dietaryNotes, 300);
     data.allergies = text(input?.allergies, 300);
-    data.transport = transportIds.includes(input?.transport) ? input.transport : 'own';
-    data.transportNotes = text(input?.transportNotes, 300);
   }
 
   return { ok: Object.keys(errors).length === 0, data, errors };

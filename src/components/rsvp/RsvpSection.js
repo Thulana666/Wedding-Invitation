@@ -18,7 +18,6 @@ const STEP_META = {
   guest: { title: 'Your details', hint: 'Tell us who is replying.' },
   attendance: { title: 'Attendance', hint: 'Will you celebrate with us?' },
   party: { title: 'Your party', hint: 'Who will be joining you?' },
-  preferences: { title: 'Preferences', hint: 'Help us plan your comfort.' },
   notes: { title: 'Review', hint: 'A final note and confirmation.' },
 };
 
@@ -31,11 +30,7 @@ function emptyForm(guest) {
     companions: guest?.companions || 0,
     companionNames: guest?.companionNames || [],
     events: guest?.events?.length ? guest.events : events.map((e) => e.id),
-    dietary: guest?.dietary || '',
-    dietaryNotes: guest?.dietaryNotes || '',
     allergies: guest?.allergies || '',
-    transport: guest?.transport || '',
-    transportNotes: guest?.transportNotes || '',
     notes: guest?.notes || '',
     website: '',
   };
@@ -89,7 +84,7 @@ export default function RsvpSection({ invitation }) {
   const maxGuests = guest?.maxGuests || rsvp.defaultMaxGuests;
   const maxCompanions = Math.max(0, maxGuests - 1);
   const steps = useMemo(
-    () => (form.attending === 'no' ? ['guest', 'attendance', 'notes'] : ['guest', 'attendance', 'party', 'preferences', 'notes']),
+    () => (form.attending === 'no' ? ['guest', 'attendance', 'notes'] : ['guest', 'attendance', 'party', 'notes']),
     [form.attending],
   );
   const step = steps[Math.min(stepIndex, steps.length - 1)];
@@ -367,54 +362,13 @@ export default function RsvpSection({ invitation }) {
                           </div>
                         )}
 
-                        {step === 'preferences' && (
-                          <div className={styles.fields}>
-                            <div className={styles.group}>
-                              <p className={styles.groupLabel}>Meal preference</p>
-                              <div className={styles.chips} role="radiogroup" aria-label="Meal preference">
-                                {rsvp.dietaryOptions.map((o) => (
-                                  <label key={o.id} className={`${styles.chip} ${form.dietary === o.id ? styles.selected : ''}`}>
-                                    <input type="radio" name="dietary" checked={form.dietary === o.id} onChange={() => set('dietary', o.id)} />
-                                    {o.label}
-                                  </label>
-                                ))}
-                              </div>
-                              {errors.dietary && <p className={styles.error}>{errors.dietary}</p>}
-                            </div>
-                            {form.dietary === 'other' && (
-                              <Field label="Your meal preference" error={errors.dietaryNotes} required>
-                                {(p) => <input {...p} className={inputClass} value={form.dietaryNotes} onChange={(e) => set('dietaryNotes', e.target.value)} placeholder="e.g. Pescatarian" />}
-                              </Field>
-                            )}
-                            <Field label="Food allergies" optional hint="Let us know about any allergies in your party.">
-                              {(p) => <input {...p} className={inputClass} value={form.allergies} onChange={(e) => set('allergies', e.target.value)} placeholder="e.g. Peanuts, shellfish" />}
-                            </Field>
-
-                            <div className={styles.group}>
-                              <p className={styles.groupLabel}>Transportation</p>
-                              <div className={styles.checks} role="radiogroup" aria-label="Transportation">
-                                {rsvp.transportOptions.map((o) => (
-                                  <label key={o.id} className={`${styles.check} ${styles.radio} ${form.transport === o.id ? styles.selected : ''}`}>
-                                    <input type="radio" name="transport" checked={form.transport === o.id} onChange={() => set('transport', o.id)} />
-                                    <span className={styles.box} aria-hidden="true" />
-                                    <span>
-                                      <strong>{o.label}</strong>
-                                    </span>
-                                  </label>
-                                ))}
-                              </div>
-                              {errors.transport && <p className={styles.error}>{errors.transport}</p>}
-                            </div>
-                            {form.transport && form.transport !== 'own' && (
-                              <Field label={form.transport === 'needed' ? 'Pickup location' : 'Transport notes'} optional>
-                                {(p) => <input {...p} className={inputClass} value={form.transportNotes} onChange={(e) => set('transportNotes', e.target.value)} placeholder={form.transport === 'needed' ? 'Where should we pick you up?' : 'Anything we should know?'} />}
-                              </Field>
-                            )}
-                          </div>
-                        )}
-
                         {step === 'notes' && (
                           <div className={styles.fields}>
+                            {form.attending === 'yes' && (
+                              <Field label="Food allergies" optional hint="Let us know about any allergies in your party.">
+                                {(p) => <input {...p} className={inputClass} value={form.allergies} onChange={(e) => set('allergies', e.target.value)} placeholder="e.g. Peanuts, shellfish" />}
+                              </Field>
+                            )}
                             <Field label={form.attending === 'no' ? 'A message for the couple' : 'Additional notes'} optional>
                               {(p) => <textarea {...p} className={inputClass} rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Your wishes or anything else we should know…" />}
                             </Field>
@@ -440,17 +394,12 @@ export default function RsvpSection({ invitation }) {
                                     <dt>Events</dt>
                                     <dd>{events.filter((e) => form.events.includes(e.id)).map((e) => e.title).join(', ')}</dd>
                                   </div>
-                                  <div>
-                                    <dt>Meal</dt>
-                                    <dd>
-                                      {rsvp.dietaryOptions.find((o) => o.id === form.dietary)?.label}
-                                      {form.allergies && ` · Allergies: ${form.allergies}`}
-                                    </dd>
-                                  </div>
-                                  <div>
-                                    <dt>Transport</dt>
-                                    <dd>{rsvp.transportOptions.find((o) => o.id === form.transport)?.label}</dd>
-                                  </div>
+                                  {form.allergies && (
+                                    <div>
+                                      <dt>Allergies</dt>
+                                      <dd>{form.allergies}</dd>
+                                    </div>
+                                  )}
                                 </>
                               )}
                             </dl>

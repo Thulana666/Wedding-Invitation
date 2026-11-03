@@ -59,19 +59,6 @@ export default function LoveStory() {
           <p className={styles.quote}>{story.together.text}</p>
         </Reveal>
       </div>
-
-      <div className="container">
-        <ol className={styles.timeline}>
-          {story.timeline.map((item, i) => (
-            <Reveal as="li" key={item.label} className={`${styles.moment} ${item.final ? styles.final : ''}`} delay={i * 0.05}>
-              <span className={styles.node} aria-hidden="true" />
-              <p className={styles.momentDate}>{item.date}</p>
-              <h3 className={styles.momentTitle}>{item.label}</h3>
-              <p className={styles.momentText}>{item.text}</p>
-            </Reveal>
-          ))}
-        </ol>
-      </div>
     </section>
   );
 }

@@ -34,7 +34,6 @@ export const POST = handle(async (request) => {
     const code = normalizeCode(body.code);
     const guest = code ? await getGuestByCode(code) : null;
     if (!guest) return jsonError('We could not find this invitation.', 404);
-    if (guest.checkedInAt) return jsonError('This invitation has already been checked in.', 409);
 
     const { ok, data, errors } = validateRsvp(body, { maxGuests: guest.maxGuests });
     if (!ok) return jsonError('Please check the highlighted fields.', 422, { errors });

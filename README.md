@@ -2,9 +2,9 @@
 
 A premium digital wedding invitation for **Dilki & Supun** (Thursday, January 21, 2027 · Saminro Grand Palace, Makola), with a complete RSVP system and a secure event dashboard.
 
-**Guest experience:** a gatefold invitation card that opens in 3D → cinematic hero → scratch-to-reveal card → love story & timeline → live countdown (Asia/Colombo) → formal invitation → wedding details & directions → photo gallery with full-screen lightbox → wax-sealed letter → location & contacts → multi-step RSVP with QR entry pass. Background music is optional and only starts after the guest chooses it.
+**Guest experience:** a gatefold invitation card that opens in 3D → cinematic hero → scratch-to-reveal card → bride & groom introductions → live countdown (Asia/Colombo) → formal invitation → wedding details & directions → photo gallery with full-screen lightbox → wax-sealed letter → location & contacts → simple four-step RSVP. Background music is optional and only starts after the guest chooses it.
 
-**Organiser dashboard (`/admin`):** live totals, charts, guest management (search, filters, sorting, pagination, add/edit/delete, status changes), personal invitation links with QR codes and WhatsApp sharing, CSV exports, and QR check-in that never checks a guest in twice.
+**Organiser dashboard (`/admin`):** live totals, charts, guest management (search, filters, sorting, pagination, add/edit/delete, status changes), personal invitation links with WhatsApp sharing, and CSV exports.
 
 Built with Next.js 16 (App Router, JavaScript), React 19, Framer Motion, CSS Modules and PostgreSQL.
 
@@ -32,7 +32,7 @@ Still waiting for content (marked `PLACEHOLDER` in the config):
 | What | Where |
 | --- | --- |
 | Pre-shoot photographs | `public/images/` — see `public/images/README.md` |
-| Bride / groom / love-story text and timeline dates | `story` in `wedding.js` |
+| Bride / groom / love-story text | `story` in `wedding.js` |
 | Message inside the envelope | `letter` in `wedding.js` |
 | RSVP deadline (optional) | `rsvp.deadline` in `wedding.js` |
 | Licensed music track (optional upgrade) | `public/audio/` — see `public/audio/README.md` |
@@ -47,11 +47,11 @@ There are two ways to invite guests:
 1. **Personal links (recommended).** In `/admin/guests` choose *Add guest*, set the allowed party size, then copy the link or press *Share on WhatsApp*. The guest sees "Dear …" on the invitation card, their name is pre-filled, and the number of accompanying guests is limited to what you allowed (enforced on the server).
 2. **The main link.** Anyone with `https://your-site/` can RSVP (`rsvp.allowOpenRsvp`); each open response is allowed `rsvp.defaultMaxGuests`. Set `allowOpenRsvp: false` to accept personal links only.
 
-After replying, guests get a personal link to update their RSVP later (also remembered on their device) and, if attending, a QR entry pass. Updates stop once a guest has been checked in.
+The RSVP asks for: name, contact number, email (optional), attending or not, accompanying guests and their names, which events they'll attend, food allergies (optional) and a message. After replying, guests get a personal link to update their RSVP later (also remembered on their device).
 
-## Check-in on the day
+## Checking RSVPs
 
-Open `/admin/checkin` on a phone (HTTPS is required for camera access), tap *Start scanning* and scan the guest's QR pass — or type the code. You'll see the guest's details, allocated seats and companions; confirm how many people arrived and press *Check in*. A second scan shows *Already checked in* with the time. Mistakes can be undone.
+Sign in at `/admin/login`. *Overview* shows the totals and charts; *Guests* lists every reply (click a name for all details). Use *Export CSV* to download the complete list, confirmed, declined, awaiting-reply or event-attendance lists.
 
 ## Deploying (e.g. Vercel + Neon Postgres)
 
@@ -60,7 +60,7 @@ Open `/admin/checkin` on a phone (HTTPS is required for camera access), tap *Sta
 
    | Variable | Value |
    | --- | --- |
-   | `NEXT_PUBLIC_SITE_URL` | Your final URL, e.g. `https://dilkiandsupun.com` (used for WhatsApp previews, QR codes) |
+   | `NEXT_PUBLIC_SITE_URL` | Your final URL, e.g. `https://dilkiandsupun.com` (used for WhatsApp previews and invitation links) |
    | `DATABASE_URL` | Postgres connection string |
    | `ADMIN_USERNAME` | Admin username |
    | `ADMIN_PASSWORD_HASH` | Output of `node scripts/hash-password.mjs "a long password"` (or `ADMIN_PASSWORD`, min. 12 characters) |
@@ -85,7 +85,7 @@ src/
   config/wedding.js        all wedding content and options
   app/                     routes: /, /invite/[code], /admin/*, /api/*
   app/api/rsvp             public RSVP API
-  app/api/admin            protected admin APIs (guests, stats, export, check-in, auth)
+  app/api/admin            protected admin APIs (guests, stats, export, auth)
   proxy.js                 admin route protection
   components/              public site sections, opening, music, RSVP, gallery, envelope…
   components/admin/        dashboard UI and charts

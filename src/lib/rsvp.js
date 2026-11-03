@@ -8,8 +8,6 @@ import { wedding } from '@/config/wedding';
 const LIMITS = { name: 120, phone: 24, email: 160, short: 300, long: 1000 };
 
 const eventIds = wedding.events.map((e) => e.id);
-const dietaryIds = wedding.rsvp.dietaryOptions.map((o) => o.id);
-const transportIds = wedding.rsvp.transportOptions.map((o) => o.id);
 
 function clean(value, max) {
   if (typeof value !== 'string') return '';
@@ -33,8 +31,7 @@ export const RSVP_STEPS = {
   guest: ['fullName', 'phone', 'email'],
   attendance: ['attending'],
   party: ['companions', 'companionNames', 'events'],
-  preferences: ['dietary', 'dietaryNotes', 'allergies', 'transport', 'transportNotes'],
-  notes: ['notes'],
+  notes: ['allergies', 'notes'],
 };
 
 export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests, fields } = {}) {
@@ -50,11 +47,7 @@ export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests,
     companions: 0,
     companionNames: [],
     events: [],
-    dietary: '',
-    dietaryNotes: '',
     allergies: '',
-    transport: '',
-    transportNotes: '',
     notes: clean(input?.notes, LIMITS.long),
   };
 
@@ -83,11 +76,7 @@ export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests,
     const events = Array.isArray(input?.events) ? input.events : [];
     data.events = [...new Set(events.filter((id) => eventIds.includes(id)))];
 
-    data.dietary = dietaryIds.includes(input?.dietary) ? input.dietary : '';
-    data.dietaryNotes = clean(input?.dietaryNotes, LIMITS.short);
     data.allergies = clean(input?.allergies, LIMITS.short);
-    data.transport = transportIds.includes(input?.transport) ? input.transport : '';
-    data.transportNotes = clean(input?.transportNotes, LIMITS.short);
 
     if (check('companions')) {
       if (data.companions < 0 || data.companions > maxCompanions) {
@@ -110,15 +99,6 @@ export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests,
     if (check('events') && data.events.length === 0) {
       errors.events = 'Please choose at least one event.';
     }
-    if (check('dietary') && !data.dietary) {
-      errors.dietary = 'Please choose a meal preference.';
-    }
-    if (check('dietaryNotes') && data.dietary === 'other' && !data.dietaryNotes) {
-      errors.dietaryNotes = 'Please tell us your meal preference.';
-    }
-    if (check('transport') && !data.transport) {
-      errors.transport = 'Please choose a transport option.';
-    }
   }
 
   return { ok: Object.keys(errors).length === 0, data, errors };
@@ -128,10 +108,4 @@ export function partySize(guest) {
   return guest.status === 'attending' ? 1 + (guest.companions || 0) : 0;
 }
 
-export function optionLabel(options, id) {
-  return options.find((o) => o.id === id)?.label || '';
-}
-
-export const dietaryLabel = (id) => optionLabel(wedding.rsvp.dietaryOptions, id);
-export const transportLabel = (id) => optionLabel(wedding.rsvp.transportOptions, id);
 export const eventLabel = (id) => wedding.events.find((e) => e.id === id)?.title || id;

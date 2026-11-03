@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import QRCode from 'qrcode';
 import { wedding } from '@/config/wedding';
 import { downloadIcs } from '@/lib/calendar';
 import { WeddingSymbol } from '@/components/ui/Ornament';
@@ -13,18 +12,12 @@ const EASE = [0.22, 1, 0.36, 1];
 export default function RsvpConfirmation({ guest, onEdit }) {
   const attending = guest.status === 'attending';
   const firstName = guest.fullName.split(' ')[0];
-  const [qr, setQr] = useState('');
   const [link, setLink] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const url = `${window.location.origin}/invite/${guest.code}`;
-    setLink(url);
-    if (!attending) return;
-    QRCode.toDataURL(url, { margin: 1, width: 360, errorCorrectionLevel: 'M', color: { dark: '#352B2B', light: '#FFFFFF' } })
-      .then(setQr)
-      .catch(() => setQr(''));
-  }, [attending, guest.code]);
+    setLink(`${window.location.origin}/invite/${guest.code}`);
+  }, [guest.code]);
 
   const copy = async () => {
     try {
@@ -56,23 +49,18 @@ export default function RsvpConfirmation({ guest, onEdit }) {
       <p className={styles.doneMessage}>{attending ? wedding.rsvp.acceptedMessage : wedding.rsvp.declinedMessage}</p>
 
       {attending && (
-        <div className={styles.pass}>
-          <div className={styles.passInfo}>
-            <p className={styles.passLabel}>Your entry pass</p>
-            <p className={styles.passName}>{guest.fullName}</p>
-            <p className={styles.passMeta}>
-              {party} {party === 1 ? 'guest' : 'guests'}
-              {eventNames.length ? ` · ${eventNames.join(' & ')}` : ''}
-            </p>
-            <p className={styles.passMeta}>{wedding.date.long}</p>
-            <p className={styles.passCode}>{guest.code}</p>
-          </div>
-          <div className={styles.qr}>
-            {qr ? <img src={qr} alt={`QR entry pass for ${guest.fullName}`} width={150} height={150} /> : <span className={styles.qrLoading} />}
-          </div>
+        <div className={styles.summary}>
+          <p className={styles.summaryLabel}>Your reply</p>
+          <p className={styles.summaryName}>{guest.fullName}</p>
+          <p className={styles.summaryMeta}>
+            {party} {party === 1 ? 'guest' : 'guests'}
+            {eventNames.length ? ` · ${eventNames.join(' & ')}` : ''}
+          </p>
+          <p className={styles.summaryMeta}>
+            {wedding.date.long} · {wedding.venue.short}
+          </p>
         </div>
       )}
-      {attending && <p className={styles.passHint}>Please show this QR code at the entrance. Take a screenshot to keep it handy.</p>}
 
       <div className={styles.doneActions}>
         {attending && (
@@ -80,11 +68,9 @@ export default function RsvpConfirmation({ guest, onEdit }) {
             Add to calendar
           </button>
         )}
-        {!guest.checkedIn && (
-          <button type="button" className="btn btn-line" onClick={onEdit}>
-            {attending ? 'Edit my response' : 'Changed your mind? Update'}
-          </button>
-        )}
+        <button type="button" className="btn btn-line" onClick={onEdit}>
+          {attending ? 'Edit my response' : 'Changed your mind? Update'}
+        </button>
       </div>
 
       {link && (

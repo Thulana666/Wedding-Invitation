@@ -9,7 +9,6 @@ import styles from './Admin.module.css';
 const NAV = [
   { href: '/admin', label: 'Overview', icon: 'M4 13h6V4H4zm0 7h6v-5H4zm10 0h6v-9h-6zm0-16v5h6V4z' },
   { href: '/admin/guests', label: 'Guests', icon: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 9a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 20a5 5 0 0 0-4-4.9' },
-  { href: '/admin/checkin', label: 'Check-in', icon: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2v2h-2zM18 14h2v2h-2z' },
 ];
 
 export default function AdminShell({ username, children }) {
