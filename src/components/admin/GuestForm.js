@@ -16,7 +16,6 @@ const blank = {
   companions: 0,
   companionNames: [],
   events: events.map((e) => e.id),
-  allergies: '',
   notes: '',
   adminNotes: '',
 };
@@ -230,10 +229,6 @@ export default function GuestForm({ guest, onClose, onSaved }) {
                 />
               </label>
             ))}
-            <label className={`${styles.field} ${styles.span2}`}>
-              <span>Food allergies</span>
-              <input value={form.allergies} onChange={(e) => set('allergies', e.target.value)} />
-            </label>
           </>
         )}
 

@@ -30,7 +30,6 @@ function emptyForm(guest) {
     companions: guest?.companions || 0,
     companionNames: guest?.companionNames || [],
     events: guest?.events?.length ? guest.events : events.map((e) => e.id),
-    allergies: guest?.allergies || '',
     notes: guest?.notes || '',
     website: '',
   };
@@ -364,11 +363,6 @@ export default function RsvpSection({ invitation }) {
 
                         {step === 'notes' && (
                           <div className={styles.fields}>
-                            {form.attending === 'yes' && (
-                              <Field label="Food allergies" optional hint="Let us know about any allergies in your party.">
-                                {(p) => <input {...p} className={inputClass} value={form.allergies} onChange={(e) => set('allergies', e.target.value)} placeholder="e.g. Peanuts, shellfish" />}
-                              </Field>
-                            )}
                             <Field label={form.attending === 'no' ? 'A message for the couple' : 'Additional notes'} optional>
                               {(p) => <textarea {...p} className={inputClass} rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Your wishes or anything else we should know…" />}
                             </Field>
@@ -394,12 +388,6 @@ export default function RsvpSection({ invitation }) {
                                     <dt>Events</dt>
                                     <dd>{events.filter((e) => form.events.includes(e.id)).map((e) => e.title).join(', ')}</dd>
                                   </div>
-                                  {form.allergies && (
-                                    <div>
-                                      <dt>Allergies</dt>
-                                      <dd>{form.allergies}</dd>
-                                    </div>
-                                  )}
                                 </>
                               )}
                             </dl>

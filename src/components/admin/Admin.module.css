@@ -494,12 +494,6 @@
   background: rgba(197, 164, 90, 0.14);
 }
 
-.allergy {
-  display: block;
-  font-size: 13px;
-  color: #9a4b12;
-}
-
 .notesCell {
   max-width: 280px;
 }

@@ -21,7 +21,6 @@ export function validateAdminGuest(input) {
     companions: 0,
     companionNames: [],
     events: [],
-    allergies: '',
     notes: text(input?.notes, 1000),
     adminNotes: text(input?.adminNotes, 1000),
   };
@@ -45,7 +44,6 @@ export function validateAdminGuest(input) {
       .map((n) => text(n, 120));
     const events = Array.isArray(input?.events) ? input.events.filter((id) => eventIds.includes(id)) : [];
     data.events = events.length ? [...new Set(events)] : [...eventIds];
-    data.allergies = text(input?.allergies, 300);
   }
 
   return { ok: Object.keys(errors).length === 0, data, errors };

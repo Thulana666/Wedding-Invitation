@@ -161,7 +161,7 @@ export default function GuestManager({ openNew }) {
                 <th>Contact</th>
                 {sortHead('status', 'Status')}
                 {sortHead('party', 'Party')}
-                <th>Allergies &amp; notes</th>
+                <th>Notes</th>
                 {sortHead('responded', 'Replied')}
                 <th>
                   <span className="sr-only">Actions</span>
@@ -208,9 +208,7 @@ export default function GuestManager({ openNew }) {
                     <span className={styles.sub}>of {g.maxGuests}</span>
                   </td>
                   <td className={styles.notesCell}>
-                    {g.allergies && <span className={styles.allergy}>⚠ {g.allergies}</span>}
-                    {g.notes && <span className={styles.sub}>{g.notes}</span>}
-                    {!g.allergies && !g.notes && '—'}
+                    {g.notes ? <span className={styles.sub}>{g.notes}</span> : '—'}
                   </td>
                   <td>{shortDate(g.respondedAt)}</td>
                   <td className={styles.rowActions}>

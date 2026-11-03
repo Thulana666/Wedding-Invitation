@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS guests (
   companions         INTEGER NOT NULL DEFAULT 0 CHECK (companions >= 0),
   companion_names    JSONB NOT NULL DEFAULT '[]'::jsonb,
   events             JSONB NOT NULL DEFAULT '[]'::jsonb,
-  allergies          TEXT,
   notes              TEXT,
   admin_notes        TEXT,
   source             TEXT NOT NULL DEFAULT 'admin' CHECK (source IN ('admin', 'open')),

@@ -28,7 +28,6 @@ const col = {
   companions: { label: 'Accompanying guests', value: (g) => g.companions },
   companionNames: { label: 'Accompanying guest names', value: (g) => g.companionNames },
   events: { label: 'Events', value: (g) => g.events.map(eventLabel) },
-  allergies: { label: 'Food allergies', value: (g) => g.allergies },
   notes: { label: 'Guest notes', value: (g) => g.notes },
   adminNotes: { label: 'Admin notes', value: (g) => g.adminNotes },
   responded: { label: 'Responded (Sri Lanka time)', value: (g) => colombo(g.respondedAt) },
@@ -42,11 +41,11 @@ const attending = (g) => g.status === 'attending';
 const LISTS = {
   all: {
     filter: () => true,
-    columns: [col.name, col.phone, col.email, col.status, col.allowed, col.party, col.companions, col.companionNames, col.events, col.allergies, col.notes, col.adminNotes, col.responded, col.code, col.source],
+    columns: [col.name, col.phone, col.email, col.status, col.allowed, col.party, col.companions, col.companionNames, col.events, col.notes, col.adminNotes, col.responded, col.code, col.source],
   },
   confirmed: {
     filter: attending,
-    columns: [col.name, col.phone, col.email, col.party, col.companionNames, col.events, col.allergies, col.notes, col.responded, col.code],
+    columns: [col.name, col.phone, col.email, col.party, col.companionNames, col.events, col.notes, col.responded, col.code],
   },
   declined: {
     filter: (g) => g.status === 'declined',

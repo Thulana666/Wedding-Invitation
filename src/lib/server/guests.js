@@ -45,7 +45,6 @@ export function toGuest(row) {
     companions: row.companions,
     companionNames: jsonArray(row.companion_names),
     events: jsonArray(row.events),
-    allergies: row.allergies || '',
     notes: row.notes || '',
     adminNotes: row.admin_notes || '',
     source: row.source,
@@ -88,7 +87,7 @@ async function insertWithUniqueCode(buildQuery) {
   throw new Error('Could not generate a unique invitation code.');
 }
 
-const RESPONSE_COLUMNS = 'status, companions, companion_names, events, allergies, notes';
+const RESPONSE_COLUMNS = 'status, companions, companion_names, events, notes';
 
 function responseValues(data) {
   const attending = data.attending === 'yes';
@@ -97,7 +96,6 @@ function responseValues(data) {
     attending ? data.companions : 0,
     JSON.stringify(attending ? data.companionNames : []),
     JSON.stringify(attending ? data.events : []),
-    attending ? data.allergies || null : null,
     data.notes || null,
   ];
 }
@@ -107,7 +105,7 @@ export async function createOpenRsvp(data) {
   return insertWithUniqueCode((code) => [
     `INSERT INTO guests (code, full_name, phone, email, max_guests, source, ${RESPONSE_COLUMNS},
        first_responded_at, responded_at)
-     VALUES ($1, $2, $3, $4, $5, 'open', $6, $7, $8::jsonb, $9::jsonb, $10, $11, now(), now())
+     VALUES ($1, $2, $3, $4, $5, 'open', $6, $7, $8::jsonb, $9::jsonb, $10, now(), now())
      RETURNING *`,
     [code, data.fullName, data.phone, data.email || null, wedding.rsvp.defaultMaxGuests, ...responseValues(data)],
   ]);
@@ -119,7 +117,7 @@ export async function updateRsvp(code, data) {
     `UPDATE guests SET
        full_name = $2, phone = $3, email = $4,
        status = $5, companions = $6, companion_names = $7::jsonb, events = $8::jsonb,
-       allergies = $9, notes = $10,
+       notes = $9,
        first_responded_at = COALESCE(first_responded_at, now()),
        responded_at = now(), updated_at = now()
      WHERE code = $1
@@ -134,7 +132,7 @@ export async function createGuest(data) {
   return insertWithUniqueCode((code) => [
     `INSERT INTO guests (code, full_name, phone, email, max_guests, admin_notes, source, ${RESPONSE_COLUMNS},
        first_responded_at, responded_at)
-     VALUES ($1, $2, $3, $4, $5, $6, 'admin', $7, $8, $9::jsonb, $10::jsonb, $11, $12,
+     VALUES ($1, $2, $3, $4, $5, $6, 'admin', $7, $8, $9::jsonb, $10::jsonb, $11,
        CASE WHEN $7::text = 'pending' THEN NULL ELSE now() END,
        CASE WHEN $7::text = 'pending' THEN NULL ELSE now() END)
      RETURNING *`,
@@ -149,7 +147,6 @@ function adminResponseValues(data) {
     attending ? data.companions : 0,
     JSON.stringify(attending ? data.companionNames : []),
     JSON.stringify(attending ? data.events : []),
-    attending ? data.allergies || null : null,
     data.notes || null,
   ];
 }
@@ -160,7 +157,7 @@ export async function updateGuest(id, data) {
     `UPDATE guests SET
        full_name = $2, phone = $3, email = $4, max_guests = $5, admin_notes = $6,
        status = $7, companions = $8, companion_names = $9::jsonb, events = $10::jsonb,
-       allergies = $11, notes = $12,
+       notes = $11,
        first_responded_at = CASE WHEN $7::text = 'pending' THEN first_responded_at ELSE COALESCE(first_responded_at, now()) END,
        responded_at = CASE WHEN $7::text = status AND responded_at IS NOT NULL THEN responded_at
                            WHEN $7::text = 'pending' THEN NULL ELSE now() END,

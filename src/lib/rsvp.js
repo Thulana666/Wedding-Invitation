@@ -31,7 +31,7 @@ export const RSVP_STEPS = {
   guest: ['fullName', 'phone', 'email'],
   attendance: ['attending'],
   party: ['companions', 'companionNames', 'events'],
-  notes: ['allergies', 'notes'],
+  notes: ['notes'],
 };
 
 export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests, fields } = {}) {
@@ -47,7 +47,6 @@ export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests,
     companions: 0,
     companionNames: [],
     events: [],
-    allergies: '',
     notes: clean(input?.notes, LIMITS.long),
   };
 
@@ -76,7 +75,6 @@ export function validateRsvp(input, { maxGuests = wedding.rsvp.defaultMaxGuests,
     const events = Array.isArray(input?.events) ? input.events : [];
     data.events = [...new Set(events.filter((id) => eventIds.includes(id)))];
 
-    data.allergies = clean(input?.allergies, LIMITS.short);
 
     if (check('companions')) {
       if (data.companions < 0 || data.companions > maxCompanions) {

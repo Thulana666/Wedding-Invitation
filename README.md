@@ -47,7 +47,7 @@ There are two ways to invite guests:
 1. **Personal links (recommended).** In `/admin/guests` choose *Add guest*, set the allowed party size, then copy the link or press *Share on WhatsApp*. The guest sees "Dear …" on the invitation card, their name is pre-filled, and the number of accompanying guests is limited to what you allowed (enforced on the server).
 2. **The main link.** Anyone with `https://your-site/` can RSVP (`rsvp.allowOpenRsvp`); each open response is allowed `rsvp.defaultMaxGuests`. Set `allowOpenRsvp: false` to accept personal links only.
 
-The RSVP asks for: name, contact number, email (optional), attending or not, accompanying guests and their names, which events they'll attend, food allergies (optional) and a message. After replying, guests get a personal link to update their RSVP later (also remembered on their device).
+The RSVP asks for: name, contact number, email (optional), attending or not, accompanying guests and their names, which events they'll attend, and an optional message. After replying, guests get a personal link to update their RSVP later (also remembered on their device).
 
 ## Checking RSVPs
 
