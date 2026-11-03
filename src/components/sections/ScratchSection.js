@@ -1,4 +1,7 @@
+'use client';
+
 import { wedding } from '@/config/wedding';
+import DoveDelivery from '@/components/scratch/DoveDelivery';
 import ScratchCard from '@/components/scratch/ScratchCard';
 import { Reveal } from '@/components/ui/Reveal';
 import styles from './ScratchSection.module.css';
@@ -14,16 +17,20 @@ export default function ScratchSection() {
             For your eyes <em>only</em>
           </h2>
         </Reveal>
-        <Reveal delay={0.15}>
-          <ScratchCard teaser={scratch.teaser}>
-            <div className={styles.message}>
-              <span className="kicker">Save the date</span>
-              <p className={`display ${styles.reveal}`}>{scratch.reveal}</p>
-              <p className={styles.date}>{date.dotted}</p>
-              <p className={styles.place}>{date.weekday} · {wedding.venue.short}</p>
-            </div>
-          </ScratchCard>
-        </Reveal>
+        <DoveDelivery>
+          {(ready) => (
+            <ScratchCard teaser={scratch.teaser} ready={ready}>
+              <div className={styles.message}>
+                <span className="kicker">Save the date</span>
+                <p className={`display ${styles.reveal}`}>{scratch.reveal}</p>
+                <p className={styles.date}>{date.dotted}</p>
+                <p className={styles.place}>
+                  {date.weekday} · {wedding.venue.short}
+                </p>
+              </div>
+            </ScratchCard>
+          )}
+        </DoveDelivery>
       </div>
     </section>
   );

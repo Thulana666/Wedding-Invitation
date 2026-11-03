@@ -86,7 +86,8 @@ function splitTeaser(text) {
   return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
 }
 
-export default function ScratchCard({ teaser, children, onReveal }) {
+/** `ready` stays false while the card is being delivered: no scratching, footer hidden. */
+export default function ScratchCard({ teaser, children, onReveal, ready = true }) {
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
@@ -111,13 +112,15 @@ export default function ScratchCard({ teaser, children, onReveal }) {
     let cancelled = false;
 
     const setup = () => {
-      const rect = wrap.getBoundingClientRect();
+      // Layout size, so a card that is still moving or rotating sizes correctly.
+      const width = wrap.clientWidth;
+      const height = wrap.clientHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      paintFoil(ctx, rect.width, rect.height, teaser);
+      paintFoil(ctx, width, height, teaser);
       ctxRef.current = ctx;
     };
 
@@ -228,11 +231,12 @@ export default function ScratchCard({ teaser, children, onReveal }) {
               onPointerUp={onPointerUp}
               onPointerCancel={onPointerUp}
               onPointerLeave={(e) => e.pointerType === 'mouse' && onPointerUp()}
+              style={{ pointerEvents: ready ? 'auto' : 'none' }}
             />
           )}
         </AnimatePresence>
 
-        {!revealed && !started && (
+        {ready && !revealed && !started && (
           <span className={styles.hand} aria-hidden="true">
             <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-.6a5.4 5.4 0 0 1-4.3-2.2L4.5 14.6a1.5 1.5 0 0 1 2.3-1.9L9 15" />
@@ -249,7 +253,7 @@ export default function ScratchCard({ teaser, children, onReveal }) {
         )}
       </div>
 
-      <div className={styles.footer}>
+      <div className={`${styles.footer} ${ready ? '' : styles.waiting}`}>
         <p className={styles.instruction} aria-live="polite">
           {revealed ? 'Revealed — scroll on for more' : 'Scratch the gold foil with your finger or mouse'}
         </p>

@@ -2,7 +2,9 @@
   background:
     radial-gradient(60% 50% at 50% 40%, rgba(233, 217, 213, 0.7), transparent 70%),
     var(--ivory);
-  overflow: hidden;
+  overflow-x: clip;
+  position: relative;
+  z-index: 1;
 }
 
 .head {
