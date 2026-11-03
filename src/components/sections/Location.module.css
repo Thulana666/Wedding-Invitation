@@ -1,0 +1,225 @@
+.section {
+  background: #f4eee5;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: clamp(20px, 3vw, 36px);
+  align-items: stretch;
+}
+
+.mapWrap {
+  position: relative;
+  min-height: 520px;
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  background: var(--beige);
+  box-shadow: inset 0 0 0 1px var(--line), 0 40px 70px -50px rgba(53, 43, 43, 0.6);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: sepia(0.25) saturate(0.85);
+}
+
+.mapPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  border: 0;
+  padding: 0 0 200px;
+  color: var(--espresso);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(197, 164, 90, 0.25), transparent 40%),
+    linear-gradient(160deg, #efe7da, #e4d8c6);
+}
+
+.mapLines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    linear-gradient(115deg, transparent 47%, rgba(255, 255, 255, 0.9) 47.5%, rgba(255, 255, 255, 0.9) 49%, transparent 49.5%),
+    linear-gradient(25deg, transparent 60%, rgba(255, 255, 255, 0.7) 60.4%, rgba(255, 255, 255, 0.7) 61.4%, transparent 61.8%),
+    linear-gradient(170deg, transparent 30%, rgba(255, 255, 255, 0.6) 30.3%, rgba(255, 255, 255, 0.6) 31%, transparent 31.3%),
+    repeating-linear-gradient(0deg, transparent 0 46px, rgba(164, 132, 63, 0.08) 46px 47px),
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(164, 132, 63, 0.08) 46px 47px);
+}
+
+.mapPin {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  color: var(--gold-deep);
+  background: rgba(255, 255, 255, 0.75);
+  animation: bob 2.6s var(--ease-in-out) infinite;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.mapCta {
+  position: relative;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.mapNote {
+  position: relative;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.venueCard {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  max-width: 440px;
+  padding: 26px 28px;
+  border-radius: 22px;
+}
+
+.hotel {
+  margin: 10px 0 2px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3vw, 38px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.hall {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--gold-deep);
+}
+
+.address {
+  margin: 4px 0 0;
+  font-style: normal;
+  color: var(--ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actions :global(.btn) {
+  --btn-h: 48px;
+  padding: 0 22px;
+  font-size: 11px;
+}
+
+.contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(28px, 3vw, 40px);
+  border-radius: var(--radius-l);
+  color: var(--ivory);
+  background:
+    radial-gradient(90% 60% at 100% 0%, rgba(197, 164, 90, 0.25), transparent 60%),
+    var(--espresso);
+}
+
+.contactsTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.contactsText {
+  margin: 0 0 12px;
+  color: rgba(248, 245, 239, 0.7);
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(230, 211, 163, 0.2);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.contact:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(230, 211, 163, 0.5);
+}
+
+.contactIcon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  color: var(--espresso-deep);
+  background: var(--gold-gradient);
+}
+
+.contactBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  line-height: 1.25;
+}
+
+.contactName {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.contactPhone {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-variant-numeric: lining-nums;
+}
+
+.contactArrow {
+  color: var(--gold-light);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.contact:hover .contactArrow {
+  transform: translateX(4px);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .mapWrap {
+    min-height: 560px;
+  }
+}

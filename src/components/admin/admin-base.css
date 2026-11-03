@@ -1,0 +1,23 @@
+/* Admin-only shared tokens (loaded by /admin routes). */
+.admin-root {
+  --a-surface: #fffdf9;
+  --a-bg: #f4efe7;
+  --a-line: rgba(53, 43, 43, 0.1);
+  --a-line-strong: rgba(53, 43, 43, 0.18);
+  --a-text: #352b2b;
+  --a-text-2: rgba(53, 43, 43, 0.72);
+  --a-text-3: rgba(53, 43, 43, 0.55);
+  /* chart series — validated for colour-vision deficiency (dataviz validator) */
+  --series-attending: #a8780f;
+  --series-declined: #2a78d6;
+  --series-track: #ebe3d6;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
+  min-height: 100dvh;
+  background: var(--a-bg);
+  color: var(--a-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}

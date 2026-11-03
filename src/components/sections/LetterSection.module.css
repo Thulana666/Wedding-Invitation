@@ -1,0 +1,6 @@
+.section {
+  overflow: hidden;
+  background:
+    radial-gradient(55% 45% at 50% 60%, rgba(233, 217, 213, 0.95), transparent 70%),
+    linear-gradient(180deg, var(--ivory), #f3ece2);
+}

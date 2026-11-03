@@ -1,0 +1,43 @@
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: clamp(48px, 7vw, 88px);
+}
+
+.center {
+  align-items: center;
+  text-align: center;
+}
+
+.left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.title {
+  font-size: clamp(42px, 6.4vw, 88px);
+}
+
+.divider {
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+.body {
+  max-width: 38em;
+  color: var(--ink-soft);
+  font-size: clamp(15px, 1.2vw, 17px);
+}
+
+.dark .title {
+  color: var(--ivory);
+}
+
+.dark .body {
+  color: rgba(248, 245, 239, 0.72);
+}
+
+.dark :global(.kicker) {
+  color: var(--gold-light);
+}
