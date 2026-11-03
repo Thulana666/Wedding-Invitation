@@ -38,7 +38,7 @@ export default function Hero({ revealed, delay = 0 }) {
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '-22%']);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
-  const { couple, date, venue, images } = wedding;
+  const { couple, images } = wedding;
   const d = delay;
   const fade = (extra, y = 18) => ({
     initial: { opacity: 0, y },
@@ -92,16 +92,6 @@ export default function Hero({ revealed, delay = 0 }) {
 
         <motion.p className={styles.married} {...fade(2.1)} aria-hidden="true">
           Are getting married
-        </motion.p>
-
-        <motion.div className={styles.dateRow} {...fade(2.35)}>
-          <span className={styles.rule} />
-          <time dateTime={date.start}>{date.hero.toUpperCase()}</time>
-          <span className={styles.rule} />
-        </motion.div>
-
-        <motion.p className={styles.venue} {...fade(2.5)}>
-          {venue.short}
         </motion.p>
       </motion.div>
 

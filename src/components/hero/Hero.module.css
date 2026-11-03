@@ -108,35 +108,6 @@
   text-transform: uppercase;
 }
 
-.dateRow {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-top: clamp(18px, 3vh, 28px);
-  font-family: var(--font-display);
-  font-size: clamp(20px, 2.4vw, 28px);
-  letter-spacing: 0.28em;
-  color: var(--gold-light);
-}
-
-.rule {
-  width: clamp(28px, 6vw, 70px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-light));
-}
-
-.rule:last-child {
-  background: linear-gradient(270deg, transparent, var(--gold-light));
-}
-
-.venue {
-  margin: 10px 0 0;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(17px, 1.8vw, 21px);
-  color: rgba(248, 245, 239, 0.82);
-}
-
 .scroll {
   position: absolute;
   left: 50%;
@@ -191,8 +162,5 @@
   .married {
     letter-spacing: 0.36em;
     margin-right: -0.36em;
-  }
-  .dateRow {
-    letter-spacing: 0.18em;
   }
 }
