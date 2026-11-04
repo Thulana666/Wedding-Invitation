@@ -104,27 +104,3 @@
   position: absolute;
   inset: 0;
 }
-
-/* Larger than the picture, so the wings have room to move. */
-.doveCanvas {
-  position: absolute;
-  left: -25%;
-  top: -25%;
-  width: 150%;
-  max-width: none;
-  height: 150%;
-}
-
-.doveImage {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* A soft shadow lifts the dove off the ivory page; too costly to repaint on phones. */
-@media (min-width: 768px) {
-  .doveCanvas,
-  .doveImage {
-    filter: drop-shadow(0 12px 16px rgba(53, 43, 43, 0.16));
-  }
-}
