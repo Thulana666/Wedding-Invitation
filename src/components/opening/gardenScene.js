@@ -1,8 +1,9 @@
 import { createProgram, loadImage } from '@/lib/webgl';
 
 /**
- * The opening scene, drawn with WebGL in four layers: the garden, the two door
- * leaves, the couple, and the light that pours over them all.
+ * The garden scene, drawn with WebGL in four layers: the garden, the two door
+ * leaves, the couple, and the light that pours over them all. It starts at dusk,
+ * with light showing around the closed door, and warms to golden hour as it opens.
  *
  * Everything sits in one perspective. The door leaves are real 3D planes that
  * swing on their hinges, and the couple walk along the path towards the same
@@ -21,7 +22,7 @@ const GROOM = { left: 0.46909, top: 0.35505, width: 0.20606, height: 0.42819 };
 
 // The couple stand this far from the camera, compared with the door.
 const COUPLE_NEARNESS = 0.757;
-const WALK_SPEED = 0.2;
+const WALK_DISTANCE = 0.62;
 
 const GRID_X = 28;
 const GRID_Y = 44;
@@ -80,6 +81,9 @@ const GARDEN_FRAGMENT = `${COMMON}
 
     // The glow around the doorway only belongs once the door stands open.
     color *= mix(vec3(1.0), vec3(0.52, 0.44, 0.37), mask.b * (1.0 - uLight));
+    // Dusk: everything is dim but the lit flowers and the light behind the door.
+    float keepsLight = max(uLight, max(mask.a, mask.g * 0.92));
+    color *= mix(vec3(0.36, 0.32, 0.36), vec3(1.0), keepsLight);
 
     float flicker = noise(vUv * 18.0 + vec2(uTime * 0.7, uTime * -0.5));
     color = screen(color, mask.g * flicker * vec3(1.0, 0.8, 0.5) * 0.55);
@@ -188,7 +192,7 @@ const SPRITE_FRAGMENT = `${COMMON}
       gl_FragColor = vec4(0.0, 0.0, 0.0, soft * 0.2 * 0.36 * uLight * uFade);
     } else if (uKind < 0.5) {
       // Turning away from the sunset the door falls into shade; light catches its open edge.
-      vec3 rgb = c.rgb * (1.0 - 0.52 * uSwing);
+      vec3 rgb = c.rgb * (1.0 - 0.52 * uSwing) * mix(vec3(0.36, 0.32, 0.35), vec3(1.0), uLight);
       rgb += c.a * vec3(1.0, 0.8, 0.5) * smoothstep(0.86, 1.0, vAcross) * uSwing * 0.55;
       gl_FragColor = vec4(rgb, c.a);
     } else {
@@ -201,7 +205,10 @@ const SPRITE_FRAGMENT = `${COMMON}
         float wide = min(texture2D(uTexture, vUv + e).a, texture2D(uTexture, vUv - e).a);
         rim = c.a * (0.6 * (1.0 - close) + 0.4 * (1.0 - wide));
       }
-      vec3 rgb = c.rgb * mix(1.0, 0.7, uLight) + rim * uLight * vec3(1.0, 0.86, 0.62) * 0.38;
+      vec3 dusk = vec3(0.5, 0.46, 0.49);
+      // Rim light belongs on heads and shoulders, not along the hem on the ground.
+      rim *= 1.0 - smoothstep(0.45, 0.7, vUv.y);
+      vec3 rgb = c.rgb * mix(dusk, vec3(0.74), uLight) + rim * uLight * vec3(1.0, 0.86, 0.62) * 0.38;
       gl_FragColor = vec4(rgb, c.a) * uFade;
     }
   }
@@ -241,7 +248,7 @@ const LIGHT_FRAGMENT = `${COMMON}
     float seam = exp(-pow((vUv.x - ${SEAM}) / 0.004, 2.0));
     float doorHeight = smoothstep(0.215, 0.24, vUv.y) * (1.0 - smoothstep(0.65, 0.68, vUv.y));
     float pulse = 0.8 + 0.2 * sin(uTime * 0.9);
-    light += seam * doorHeight * pulse * (1.0 - uLight) * 0.16 * vec3(1.0, 0.86, 0.6);
+    light += seam * doorHeight * pulse * (1.0 - uLight) * 0.34 * vec3(1.0, 0.9, 0.7);
 
     gl_FragColor = vec4(light, 1.0);
   }
@@ -363,22 +370,21 @@ export async function createGardenScene(canvas) {
   };
 
   return {
-    /** `time` runs always; `sinceOpen` is seconds since Open Invitation, or negative before it. */
-    draw(time, sinceOpen) {
-      const t = sinceOpen;
+    /** `time` runs always; `t` is seconds since the garden came into view, negative before it. */
+    draw(time, t) {
       // The latch gives first, then the heavy doors swing.
-      const crack = smooth(0.1, 0.45, t);
-      const swing = smooth(0.6, 2.8, t);
+      const crack = smooth(0.3, 0.7, t);
+      const swing = smooth(0.9, 3, t);
       const angle = crack * 0.05 + swing * 1.38;
       const open = clamp(crack * 0.1 + swing * 0.9);
       const glow = smooth(0, 0.75, open);
 
-      const walking = smooth(1.0, 1.6, t);
-      const walked = t > 1 ? (t - 1) ** 2 / (t - 1 + 0.3) : 0;
-      const near = COUPLE_NEARNESS / (COUPLE_NEARNESS + WALK_SPEED * walked);
-      const beat = t > 1 ? (t - 1) * 5.2 : 0;
-      const fade = 1 - smooth(4.1, 4.95, t);
-      const flood = smooth(3.4, 5.1, t);
+      // They set off as the doors part and end up small in the bright doorway.
+      const walking = smooth(1.4, 2, t) * (1 - smooth(4.8, 5.4, t));
+      const near = COUPLE_NEARNESS / (COUPLE_NEARNESS + WALK_DISTANCE * smooth(1.4, 5.4, t));
+      const beat = t > 1.4 ? (t - 1.4) * 5.2 : 0;
+      const fade = 1;
+      const flood = smooth(3.2, 5.4, t) * 0.26;
 
       gl.disable(gl.BLEND);
       gl.useProgram(garden);
