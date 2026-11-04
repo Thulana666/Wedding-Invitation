@@ -171,10 +171,12 @@ export const wedding = {
     { src: '/images/gallery/gallery-10.jpg', layout: 'feature', caption: 'Pre-shoot photograph 10', alt: 'Pre-wedding photograph of Dilki and Supun' },
   ],
 
+  // Shown in link previews, before anyone opens the invitation, so keep the
+  // date and venue out of it.
   seo: {
-    title: 'Dilki & Supun — Wedding Invitation · 21 January 2027',
-    description:
-      'Together with their families, Dilki & Supun request the honor of your presence on Thursday, January 21, 2027 at Saminro Grand Palace, Makola.',
+    title: 'Dilki & Supun — Wedding Invitation',
+    shareTitle: 'You are invited to the wedding of Dilki & Supun',
+    description: 'Open to view your invitation.',
   },
 };
 

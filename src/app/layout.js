@@ -30,14 +30,14 @@ export const metadata = {
   applicationName: 'Dilki & Supun',
   openGraph: {
     type: 'website',
-    title: 'Dilki & Supun are getting married',
+    title: wedding.seo.shareTitle,
     description: wedding.seo.description,
     siteName: 'Dilki & Supun',
     locale: 'en_GB',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Dilki & Supun are getting married',
+    title: wedding.seo.shareTitle,
     description: wedding.seo.description,
   },
   formatDetection: { telephone: false },

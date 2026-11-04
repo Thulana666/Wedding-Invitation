@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { wedding } from '@/config/wedding';
 
-export const alt = 'Dilki & Supun — Wedding Invitation, 21 January 2027';
+export const alt = 'An invitation to the wedding of Dilki & Supun';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -20,13 +20,13 @@ async function font(family, weight, text) {
 }
 
 export default async function OpengraphImage() {
-  const { couple, date, venue } = wedding;
-  const names = couple.names;
-  const small = `TOGETHER WITH THEIR FAMILIES ${date.long.toUpperCase()} ${venue.short} ARE GETTING MARRIED`;
+  const names = wedding.couple.names;
+  const invited = 'YOU ARE INVITED TO THE WEDDING OF';
+  const open = 'Open to view your invitation';
 
   const [script, serif] = await Promise.all([
     font('Pinyon+Script', 400, names),
-    font('Cormorant+Garamond', 500, small + small.toLowerCase()),
+    font('Cormorant+Garamond', 500, invited + open),
   ]);
 
   const fonts = [];
@@ -59,12 +59,10 @@ export default async function OpengraphImage() {
             fontFamily: 'Serif',
           }}
         >
-          <div style={{ fontSize: 22, letterSpacing: 8, color: '#a4843f' }}>TOGETHER WITH THEIR FAMILIES</div>
-          <div style={{ fontFamily: 'Script', fontSize: 150, lineHeight: 1.25, color: '#a4843f', marginTop: 10 }}>{names}</div>
-          <div style={{ fontSize: 24, letterSpacing: 10, marginTop: 6 }}>ARE GETTING MARRIED</div>
-          <div style={{ width: 160, height: 1, background: '#c5a45a', margin: '28px 0' }} />
-          <div style={{ fontSize: 30, letterSpacing: 4 }}>{date.long}</div>
-          <div style={{ fontSize: 26, marginTop: 8, color: 'rgba(53,43,43,0.7)' }}>{venue.short}</div>
+          <div style={{ fontSize: 24, letterSpacing: 8, color: '#a4843f' }}>{invited}</div>
+          <div style={{ fontFamily: 'Script', fontSize: 160, lineHeight: 1.25, color: '#a4843f', marginTop: 14 }}>{names}</div>
+          <div style={{ width: 160, height: 1, background: '#c5a45a', margin: '30px 0 26px' }} />
+          <div style={{ fontSize: 30, letterSpacing: 2, color: 'rgba(53,43,43,0.75)' }}>{open}</div>
         </div>
       </div>
     ),
