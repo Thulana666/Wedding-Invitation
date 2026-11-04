@@ -41,7 +41,7 @@ const VERTEX_SHADER = `
     if (reach <= 0.0) return p;
     float u = min(reach / uSpan, 1.0);
     float angle = uFold + uSwing * sin(uBeat - 0.9 * u);
-    return uHinge + uAxis * (along - 0.05 * reach * sin(angle)) + normal * reach * cos(angle);
+    return uHinge + uAxis * (along + 0.07 * reach * sin(angle)) + normal * reach * cos(angle);
   }
 
   vec2 swayTail(vec2 p) {
@@ -165,8 +165,8 @@ export async function createDoveRig(canvas, basePath = '/dove') {
     /** `phase` is the point in the wingbeat, `effort` runs from 0 (gliding) to 1 (full flapping). */
     draw(phase, effort) {
       gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.uniform1f(u.uFold, lerp(0.24, 0.92, effort));
-      gl.uniform1f(u.uSwing, lerp(0.05, 1, effort));
+      gl.uniform1f(u.uFold, lerp(0.24, 0.85, effort));
+      gl.uniform1f(u.uSwing, lerp(0.05, 0.92, effort));
       gl.uniform1f(u.uBob, Math.sin(phase + 0.6) * 0.004 * effort);
       gl.uniform1f(u.uTail, Math.sin(phase + 1.4) * 0.07 * effort);
 
