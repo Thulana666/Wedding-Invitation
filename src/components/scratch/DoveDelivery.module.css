@@ -1,15 +1,16 @@
 .delivery {
-  --ribbon: clamp(70px, 9vw, 104px);
-  --dove: clamp(128px, 18vw, 214px);
+  --ribbon: clamp(62px, 8vw, 92px);
+  --dove: clamp(170px, 22vw, 280px);
   position: relative;
+  /* Holds the dove below the section title, even once the card stops moving. */
+  isolation: isolate;
   /* room above the card for the ribbon and dove as they arrive */
-  padding-top: calc(var(--ribbon) + var(--dove) * 0.45);
-  margin-top: calc((var(--ribbon) + var(--dove) * 0.45) * -0.7);
+  padding-top: calc(var(--ribbon) + var(--dove) * 0.3);
+  margin-top: calc((var(--ribbon) + var(--dove) * 0.3) * -0.7);
 }
 
 .carrier {
   position: relative;
-  will-change: transform;
 }
 
 .hanging {
@@ -36,6 +37,34 @@
   overflow: visible;
 }
 
+.ribbonEdge,
+.ribbonSheen {
+  fill: none;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ribbonEdge {
+  stroke: #a98438;
+  stroke-width: 3.2px;
+}
+
+.ribbonSheen {
+  stroke: #efe0b0;
+  stroke-width: 1.1px;
+}
+
+/* The bow's knot sits at the ribbon's apex, under the beak. */
+.bow {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: clamp(40px, 5vw, 54px);
+  height: auto;
+  translate: -50% -33%;
+  overflow: visible;
+}
+
 .knot {
   position: absolute;
   bottom: -4px;
@@ -55,48 +84,31 @@
   left: 93%;
 }
 
-/* Dove: its beak sits on the ribbon's apex. Beak tip is at (36, 72) of 200×140. */
+/* Dove: its beak sits on the ribbon's apex. Beak tip is at (108, 181) of 600×420. */
 .dove {
   position: absolute;
   left: calc(50% - var(--dove) * 0.18);
-  top: calc(var(--ribbon) * -1 - var(--dove) * 0.36);
+  top: calc(var(--ribbon) * -1 - var(--dove) * 0.3017);
   width: var(--dove);
   z-index: 2;
   pointer-events: none;
-  filter: drop-shadow(0 10px 14px rgba(53, 43, 43, 0.22));
+}
+
+.dove,
+.pitch {
+  transform-origin: 18% 43.1%;
 }
 
 .doveSvg {
+  display: block;
   width: 100%;
   height: auto;
   overflow: visible;
 }
 
-.wingNear,
-.wingFar {
-  transform-box: view-box;
-  transform-origin: 92px 70px;
-  animation: flap 0.34s ease-in-out infinite alternate;
-}
-
-.wingFar {
-  animation-name: flapFar;
-}
-
-@keyframes flap {
-  from {
-    transform: rotate(-12deg);
-  }
-  to {
-    transform: rotate(58deg) scaleY(0.82);
-  }
-}
-
-@keyframes flapFar {
-  from {
-    transform: rotate(-6deg);
-  }
-  to {
-    transform: rotate(36deg);
+/* A soft shadow lifts the white bird off the ivory page; too costly to repaint on phones. */
+@media (min-width: 768px) {
+  .doveSvg {
+    filter: drop-shadow(0 12px 16px rgba(53, 43, 43, 0.2));
   }
 }
