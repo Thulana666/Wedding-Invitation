@@ -1,12 +1,12 @@
 .delivery {
   --ribbon: clamp(62px, 8vw, 92px);
-  --dove: clamp(170px, 22vw, 280px);
+  --dove: clamp(190px, 25vw, 320px);
   position: relative;
   /* Holds the dove below the section title, even once the card stops moving. */
   isolation: isolate;
   /* room above the card for the ribbon and dove as they arrive */
-  padding-top: calc(var(--ribbon) + var(--dove) * 0.3);
-  margin-top: calc((var(--ribbon) + var(--dove) * 0.3) * -0.7);
+  padding-top: calc(var(--ribbon) + var(--dove) * 0.26);
+  margin-top: calc((var(--ribbon) + var(--dove) * 0.26) * -0.7);
 }
 
 .carrier {
@@ -84,31 +84,47 @@
   left: 93%;
 }
 
-/* Dove: its beak sits on the ribbon's apex. Beak tip is at (108, 181) of 600×420. */
+/* The picture's beak sits on the ribbon's apex, at 21.9% across and 53.5% down. */
 .dove {
   position: absolute;
-  left: calc(50% - var(--dove) * 0.18);
-  top: calc(var(--ribbon) * -1 - var(--dove) * 0.3017);
+  left: calc(50% - var(--dove) * 0.219);
+  top: calc(var(--ribbon) * -1 - var(--dove) * 0.535);
   width: var(--dove);
+  aspect-ratio: 1;
   z-index: 2;
   pointer-events: none;
 }
 
 .dove,
 .pitch {
-  transform-origin: 18% 43.1%;
+  transform-origin: 21.9% 53.5%;
 }
 
-.doveSvg {
+.pitch {
+  position: absolute;
+  inset: 0;
+}
+
+/* Larger than the picture, so the wings have room to move. */
+.doveCanvas {
+  position: absolute;
+  left: -25%;
+  top: -25%;
+  width: 150%;
+  max-width: none;
+  height: 150%;
+}
+
+.doveImage {
   display: block;
   width: 100%;
-  height: auto;
-  overflow: visible;
+  height: 100%;
 }
 
-/* A soft shadow lifts the white bird off the ivory page; too costly to repaint on phones. */
+/* A soft shadow lifts the dove off the ivory page; too costly to repaint on phones. */
 @media (min-width: 768px) {
-  .doveSvg {
-    filter: drop-shadow(0 12px 16px rgba(53, 43, 43, 0.2));
+  .doveCanvas,
+  .doveImage {
+    filter: drop-shadow(0 12px 16px rgba(53, 43, 43, 0.16));
   }
 }

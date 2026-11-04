@@ -9,8 +9,8 @@ import {
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
-import { applyWingPose, doveMarkup, findWingParts } from './doveArt.mjs';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createDoveRig } from './doveRig';
 import styles from './DoveDelivery.module.css';
 
 const FLIGHT_SECONDS = 3.4;
@@ -26,31 +26,37 @@ function bezier([a, b, c, d], t) {
   return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d;
 }
 
-const DOVE_ART = doveMarkup();
+/** The dove. Its wings beat faster with effort, and hold open when it glides. */
+function Dove({ effort, flying, onPrepared }) {
+  const canvas = useRef(null);
+  const rig = useRef(null);
+  const beat = useRef(0);
+  const [unavailable, setUnavailable] = useState(false);
 
-/** The dove's wings beat faster with effort, and hold open when it glides. */
-function Dove({ effort }) {
-  const svg = useRef(null);
-  const parts = useRef(null);
-  const phase = useRef(0);
+  useEffect(() => {
+    let cancelled = false;
+    createDoveRig(canvas.current).then((created) => {
+      if (cancelled) return;
+      rig.current = created;
+      setUnavailable(!created);
+      onPrepared();
+    });
+    return () => {
+      cancelled = true;
+      rig.current?.destroy();
+      rig.current = null;
+    };
+  }, [onPrepared]);
 
   useAnimationFrame((_, delta) => {
-    if (!svg.current) return;
-    if (!parts.current) parts.current = findWingParts(svg.current);
+    if (!flying || !rig.current) return;
     const e = effort.get();
-    phase.current += (delta / 1000) * (3 + 7 * e);
-    applyWingPose(parts.current, phase.current, e);
+    beat.current += (delta / 1000) * (2.5 + 6.5 * e);
+    rig.current.draw(beat.current, e);
   });
 
-  return (
-    <svg
-      ref={svg}
-      viewBox="0 0 600 420"
-      className={styles.doveSvg}
-      aria-hidden="true"
-      dangerouslySetInnerHTML={{ __html: DOVE_ART }}
-    />
-  );
+  if (unavailable) return <img className={styles.doveImage} src="/dove/whole.webp" alt="" />;
+  return <canvas ref={canvas} className={styles.doveCanvas} aria-hidden="true" />;
 }
 
 /** Gold satin ribbon from the dove's beak down to the card's top corners. */
@@ -93,6 +99,10 @@ export default function DoveDelivery({ children }) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
   const inView = useInView(ref, { once: true, amount: 0.35 });
+  // Get the dove ready before the visitor reaches it.
+  const nearby = useInView(ref, { once: true, margin: '80% 0px' });
+  const [prepared, setPrepared] = useState(false);
+  const onPrepared = useCallback(() => setPrepared(true), []);
   // waiting → flying → landed (dove leaving) → done
   const [phase, setPhase] = useState('waiting');
 
@@ -103,7 +113,7 @@ export default function DoveDelivery({ children }) {
   // Arrives from the distance, growing as it comes.
   const scale = useTransform(progress, [0, 1], [0.8, 1]);
   // Negative tips the beak down. It flares nose-up just before setting the card down.
-  const pitch = useTransform(progress, [0, 0.3, 0.65, 0.88, 1], [-18, -9, -2, 9, 0]);
+  const pitch = useTransform(progress, [0, 0.3, 0.65, 0.88, 1], [-22, -13, -6, 6, 0]);
   // Flaps in, glides, then beats hard to brake.
   const effort = useTransform(progress, [0, 0.45, 0.6, 0.8, 0.92, 1], [1, 1, 0.1, 0.1, 0.9, 1]);
   // The card trails behind the bird like a pendulum, settling as it lands.
@@ -113,10 +123,17 @@ export default function DoveDelivery({ children }) {
     if (reduced) {
       progress.set(1);
       setPhase('done');
-    } else if (inView) {
-      setPhase((p) => (p === 'waiting' ? 'flying' : p));
+      return undefined;
     }
-  }, [inView, reduced, progress]);
+    if (!inView) return undefined;
+    if (prepared) {
+      setPhase((p) => (p === 'waiting' ? 'flying' : p));
+      return undefined;
+    }
+    // On a slow connection, don't keep the visitor waiting for the card.
+    const t = setTimeout(() => setPrepared(true), 1500);
+    return () => clearTimeout(t);
+  }, [inView, prepared, reduced, progress]);
 
   useEffect(() => {
     if (phase !== 'flying') return undefined;
@@ -140,7 +157,7 @@ export default function DoveDelivery({ children }) {
   return (
     <div ref={ref} className={styles.delivery}>
       <motion.div className={styles.carrier} style={{ x, y, scale, opacity }}>
-        {airborne && (
+        {nearby && !reduced && phase !== 'done' && (
           <motion.div
             className={styles.dove}
             initial={false}
@@ -163,7 +180,7 @@ export default function DoveDelivery({ children }) {
             }}
           >
             <motion.div className={styles.pitch} style={{ rotate: pitch }}>
-              <Dove effort={effort} />
+              <Dove effort={effort} flying={airborne} onPrepared={onPrepared} />
             </motion.div>
           </motion.div>
         )}
