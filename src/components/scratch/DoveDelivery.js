@@ -59,40 +59,9 @@ function Dove({ effort, flying, onPrepared }) {
   return <canvas ref={canvas} className={styles.doveCanvas} aria-hidden="true" />;
 }
 
-/** Gold satin ribbon from the dove's beak down to the card's top corners. */
-function Ribbon() {
-  return (
-    <svg className={styles.ribbon} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path className={styles.ribbonEdge} d="M7 100L50 0l43 100" />
-      <path className={styles.ribbonSheen} d="M7 100L50 0l43 100" />
-    </svg>
-  );
-}
-
-function Bow() {
-  return (
-    <svg className={styles.bow} viewBox="0 0 64 44" aria-hidden="true">
-      <defs>
-        <linearGradient id="bow-satin" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f1e2b6" />
-          <stop offset="0.5" stopColor="#d2b163" />
-          <stop offset="1" stopColor="#a98438" />
-        </linearGradient>
-      </defs>
-      <g fill="url(#bow-satin)" stroke="#94722c" strokeWidth="0.8" strokeLinejoin="round">
-        <path d="M30 15 19 41l6-3 3 5 5-26z" />
-        <path d="m34 15 11 26-6-3-3 5-5-26z" />
-        <path d="M30 13C22 3 7 1 5 8s13 12 25 8z" />
-        <path d="M34 13c8-10 23-12 25-5s-13 12-25 8z" />
-        <rect x="27.5" y="10" width="9" height="9" rx="3" />
-      </g>
-    </svg>
-  );
-}
-
 /**
- * Wraps the scratch card: when it scrolls into view, a dove flies in holding
- * the card by a ribbon, sets it down, lets go and flies away. `children` is a
+ * Wraps the scratch card: when it scrolls into view, a dove flies in gripping
+ * the card in its feet, sets it down, lets go and flies away. `children` is a
  * render function receiving `ready` (true once the card has landed).
  */
 export default function DoveDelivery({ children }) {
@@ -113,11 +82,11 @@ export default function DoveDelivery({ children }) {
   // Arrives from the distance, growing as it comes.
   const scale = useTransform(progress, [0, 1], [0.8, 1]);
   // Negative tips the beak down. It flares nose-up just before setting the card down.
-  const pitch = useTransform(progress, [0, 0.3, 0.65, 0.88, 1], [-22, -13, -6, 6, 0]);
+  const pitch = useTransform(progress, [0, 0.3, 0.65, 0.88, 1], [-16, -10, -4, 5, 0]);
   // Flaps in, glides, then beats hard to brake.
   const effort = useTransform(progress, [0, 0.45, 0.6, 0.8, 0.92, 1], [1, 1, 0.1, 0.1, 0.9, 1]);
-  // The card trails behind the bird like a pendulum, settling as it lands.
-  const swing = useTransform(progress, (p) => -15 * (1 - p) ** 1.4 * Math.cos(p * Math.PI * 3.2));
+  // The card sways from the dove's feet, settling as it lands.
+  const swing = useTransform(progress, (p) => -9 * (1 - p) ** 1.4 * Math.cos(p * Math.PI * 3.2));
 
   useEffect(() => {
     if (reduced) {
@@ -165,7 +134,7 @@ export default function DoveDelivery({ children }) {
               landed
                 ? {
                     x: ['0vw', '1vw', '-11vw', '-62vw'],
-                    y: ['0vh', '1vh', '-8vh', '-72vh'],
+                    y: ['0vh', '-1vh', '-9vh', '-72vh'],
                     rotate: [0, -3, 10, 18],
                     scale: [1, 1, 0.94, 0.68],
                     opacity: [1, 1, 1, 0],
@@ -186,19 +155,6 @@ export default function DoveDelivery({ children }) {
         )}
 
         <motion.div className={styles.hanging} style={{ rotate: swing }}>
-          {airborne && (
-            <motion.div
-              className={styles.ribbonWrap}
-              initial={false}
-              animate={landed ? { opacity: 0, y: 16 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: landed ? LEAVE_DELAY + 0.1 : 0, ease: 'easeIn' }}
-            >
-              <Ribbon />
-              <Bow />
-              <span className={`${styles.knot} ${styles.knotLeft}`} />
-              <span className={`${styles.knot} ${styles.knotRight}`} />
-            </motion.div>
-          )}
           {children(landed || phase === 'done')}
         </motion.div>
       </motion.div>
