@@ -3,13 +3,14 @@
 import {
   animate,
   motion,
+  useAnimationFrame,
   useInView,
   useMotionValue,
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Dove from './Dove';
+import { createDoveRig } from './doveRig';
 import styles from './DoveDelivery.module.css';
 
 const FLIGHT_SECONDS = 3.4;
@@ -23,6 +24,39 @@ const PATH_Y = [-46, 6, -20, 0];
 function bezier([a, b, c, d], t) {
   const u = 1 - t;
   return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d;
+}
+
+/** The dove. Its wings beat faster with effort, and hold open when it glides. */
+function Dove({ effort, flying, onPrepared }) {
+  const canvas = useRef(null);
+  const rig = useRef(null);
+  const beat = useRef(0);
+  const [unavailable, setUnavailable] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    createDoveRig(canvas.current).then((created) => {
+      if (cancelled) return;
+      rig.current = created;
+      setUnavailable(!created);
+      onPrepared();
+    });
+    return () => {
+      cancelled = true;
+      rig.current?.destroy();
+      rig.current = null;
+    };
+  }, [onPrepared]);
+
+  useAnimationFrame((_, delta) => {
+    if (!flying || !rig.current) return;
+    const e = effort.get();
+    beat.current += (delta / 1000) * (2.5 + 6.5 * e);
+    rig.current.draw(beat.current, e);
+  });
+
+  if (unavailable) return <img className={styles.doveImage} src="/dove/whole.webp" alt="" />;
+  return <canvas ref={canvas} className={styles.doveCanvas} aria-hidden="true" />;
 }
 
 /** Gold satin ribbon from the dove's beak down to the card's top corners. */

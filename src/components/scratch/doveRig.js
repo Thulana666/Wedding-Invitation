@@ -7,8 +7,6 @@
  * Positions are fractions of the 1024 × 1024 layer images.
  */
 
-import { createProgram, loadImage } from '@/lib/webgl';
-
 const LAYERS = ['far', 'body', 'near'];
 
 /** The hinge is where the wing folds; `axis` runs along it; `span` is the wing's reach. */
@@ -74,6 +72,13 @@ const FRAGMENT_SHADER = `
   }
 `;
 
+function compile(gl, type, source) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  return shader;
+}
+
 function buildGrid(gl, program) {
   const points = [];
   for (let y = 0; y <= GRID; y += 1) {
@@ -95,6 +100,15 @@ function buildGrid(gl, program) {
   gl.enableVertexAttribArray(position);
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
   return indices.length;
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
 }
 
 function createTexture(gl, image) {
@@ -129,8 +143,12 @@ export async function createDoveRig(canvas, basePath = '/dove') {
   canvas.height = Math.round(canvas.clientHeight * dpr);
   gl.viewport(0, 0, canvas.width, canvas.height);
 
-  const program = createProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
-  if (!program) return null;
+  const program = gl.createProgram();
+  gl.attachShader(program, compile(gl, gl.VERTEX_SHADER, VERTEX_SHADER));
+  gl.attachShader(program, compile(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
+  gl.useProgram(program);
 
   const count = buildGrid(gl, program);
   const textures = images.map((image) => createTexture(gl, image));

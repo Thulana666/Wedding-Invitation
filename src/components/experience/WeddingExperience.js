@@ -24,6 +24,8 @@ const OPENED_KEY = 'ds-opened';
 function Experience({ invitation, inviteNotFound }) {
   // intro → opening (animation running) → open
   const [phase, setPhase] = useState('intro');
+  // The hero starts revealing as the opening camera move passes through the doors.
+  const [heroDelay, setHeroDelay] = useState(3.2);
   const [toast, setToast] = useState(inviteNotFound);
   const music = useMusic();
 
@@ -35,6 +37,7 @@ function Experience({ invitation, inviteNotFound }) {
       /* storage unavailable */
     }
     if (opened) {
+      setHeroDelay(0.1);
       setPhase('open');
     } else {
       document.body.classList.add('is-locked');
@@ -83,7 +86,7 @@ function Experience({ invitation, inviteNotFound }) {
       <FloatingNav visible={phase === 'open'} />
 
       <main id="main" className={styles.main} aria-hidden={phase === 'intro' ? true : undefined}>
-        <Hero revealed={revealed} />
+        <Hero revealed={revealed} delay={heroDelay} />
         <ScratchSection />
         <LoveStory />
         <Countdown />

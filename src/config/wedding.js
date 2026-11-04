@@ -145,6 +145,7 @@ export const wedding = {
   images: {
     // Drop the couple's photographs into public/images and keep these paths,
     // or change the paths here. See public/images/README.md.
+    hero: { src: '/images/hero/hero.jpg', alt: 'Dilki and Supun' },
     bride: { src: '/images/story/bride.jpg', alt: 'Dilki' },
     groom: { src: '/images/story/groom.jpg', alt: 'Supun' },
     together: { src: '/images/story/together.jpg', alt: 'Dilki and Supun together' },
