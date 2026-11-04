@@ -111,55 +111,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The couple */
-.couple {
-  position: absolute;
-  left: 13.33%;
-  top: 35.44%;
-  width: 54.18%;
-  aspect-ratio: 447 / 805;
-  transform-origin: 43.6% 100%;
-  pointer-events: none;
-}
-
-.walker {
-  width: 100%;
-  height: 100%;
-  transform-origin: 43.6% 100%;
-}
-
-.coupleImage {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.resting {
-  animation: sway 5s ease-in-out infinite alternate;
-}
-
-@keyframes sway {
-  from {
-    transform: rotate(-0.25deg);
-  }
-  to {
-    transform: rotate(0.25deg);
-  }
-}
-
-.walking {
-  animation: walk 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes walk {
-  from {
-    transform: translateY(0) rotate(-0.6deg);
-  }
-  to {
-    transform: translateY(-1.6%) rotate(0.6deg);
-  }
-}
-
 /* Doves crossing the sky */
 .flightOne,
 .flightTwo {
@@ -227,8 +178,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drift,
-  .resting {
+  .drift {
     animation: none;
   }
 }

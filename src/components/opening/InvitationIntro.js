@@ -1,6 +1,6 @@
 'use client';
 
-import { animate, motion, useAnimationFrame, useMotionValue, useReducedMotion } from 'framer-motion';
+import { motion, useAnimationFrame, useMotionValue, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import GoldDust from '@/components/ambient/GoldDust';
 import Dove from '@/components/scratch/Dove';
@@ -9,53 +9,73 @@ import styles from './InvitationIntro.module.css';
 
 const EASE = [0.22, 1, 0.36, 1];
 
+// Seconds from Open Invitation until the main page shows through, once the
+// door has opened and the couple have walked in.
+const SCENE_SECONDS = 5.3;
+const QUICK_SECONDS = 0.4;
+// Longest the Open button waits for the scene on a slow connection.
+const READY_TIMEOUT_MS = 2500;
+
 /**
- * Opening screen: the bride and groom at a vine-covered archway in a garden at
- * sunset. Leaves stir, doves cross the sky and light pours from the doorway. On
- * "Open Invitation" the couple walk into the light and the view follows them
- * into the main page.
+ * Opening screen: the bride and groom before a closed door in a garden at
+ * sunset, with leaves stirring and doves crossing the sky. On "Open Invitation"
+ * the door swings open, light pours out, the couple walk in and the view
+ * follows them into the main page. Without WebGL, or with reduced motion, the
+ * picture simply fades through.
  */
 export default function InvitationIntro({ defaultMusic = true, onOpen, onDone }) {
   const reduced = useReducedMotion();
   const [opening, setOpening] = useState(false);
   const [withMusic, setWithMusic] = useState(defaultMusic);
   const [sceneReady, setSceneReady] = useState(false);
+  const [canOpen, setCanOpen] = useState(false);
   // Doves join after the page loads, so server and browser start out the same.
   const [showDoves, setShowDoves] = useState(false);
 
   const canvas = useRef(null);
   const scene = useRef(null);
   const time = useRef(0);
-  const light = useMotionValue(0);
+  const openedAt = useRef(null);
   const wingbeat = useMotionValue(0.7);
 
   useEffect(() => {
-    if (reduced) return undefined;
+    if (reduced) {
+      setCanOpen(true);
+      return undefined;
+    }
     setShowDoves(true);
     let cancelled = false;
     createGardenScene(canvas.current).then((created) => {
       if (cancelled) return;
       scene.current = created;
       setSceneReady(Boolean(created));
+      setCanOpen(true);
     });
+    const giveUp = setTimeout(() => setCanOpen(true), READY_TIMEOUT_MS);
     return () => {
       cancelled = true;
+      clearTimeout(giveUp);
       scene.current?.destroy();
       scene.current = null;
     };
   }, [reduced]);
 
-  useAnimationFrame((_, delta) => {
+  // The real clock, so the scene stays in step with the page on a slow phone.
+  useAnimationFrame((elapsed) => {
     if (!scene.current) return;
-    time.current += delta / 1000;
-    scene.current.draw(time.current, light.get());
+    time.current = elapsed / 1000;
+    const sinceOpen = openedAt.current === null ? -1 : time.current - openedAt.current;
+    scene.current.draw(time.current, sinceOpen);
   });
+
+  const cinematic = !reduced && sceneReady;
+  const seconds = cinematic ? SCENE_SECONDS : QUICK_SECONDS;
 
   const open = () => {
     if (opening) return;
     setOpening(true);
-    onOpen?.({ withMusic });
-    animate(light, 1, { duration: 2.7, delay: 0.2, ease: [0.45, 0, 0.7, 1] });
+    openedAt.current = time.current;
+    onOpen?.({ withMusic, heroDelay: seconds - 0.15 });
   };
 
   return (
@@ -66,15 +86,15 @@ export default function InvitationIntro({ defaultMusic = true, onOpen, onDone })
       aria-label="Wedding invitation"
       initial={{ opacity: 1 }}
       animate={{ opacity: opening ? 0 : 1 }}
-      transition={opening ? { delay: reduced ? 0.4 : 3.35, duration: reduced ? 0.5 : 0.75, ease: 'easeInOut' } : { duration: 0 }}
+      transition={opening ? { delay: seconds, duration: cinematic ? 0.7 : 0.5, ease: 'easeInOut' } : { duration: 0 }}
       onAnimationComplete={() => opening && onDone?.()}
       style={{ pointerEvents: opening ? 'none' : 'auto' }}
     >
       <motion.div
         className={styles.stage}
         initial={false}
-        animate={opening && !reduced ? { scale: 4 } : { scale: 1 }}
-        transition={{ delay: 2.25, duration: 1.3, ease: [0.6, 0, 0.8, 0.25] }}
+        animate={opening && cinematic ? { scale: 1.42 } : { scale: 1 }}
+        transition={{ delay: 1, duration: 4.4, ease: [0.45, 0, 0.75, 0.7] }}
       >
         <motion.div
           className={styles.world}
@@ -85,7 +105,7 @@ export default function InvitationIntro({ defaultMusic = true, onOpen, onDone })
           <div className={styles.drift}>
             <img className={styles.ambient} src="/opening/garden-wide.webp" alt="" />
             <div className={styles.picture}>
-              <img className={styles.plate} src="/opening/garden.webp" alt="" fetchPriority="high" />
+              <img className={styles.plate} src="/opening/garden-closed.webp" alt="" fetchPriority="high" />
               <canvas ref={canvas} className={`${styles.plate} ${sceneReady ? styles.alive : styles.waiting}`} aria-hidden="true" />
             </div>
 
@@ -103,32 +123,17 @@ export default function InvitationIntro({ defaultMusic = true, onOpen, onDone })
             )}
 
             <button type="button" className={styles.doorway} onClick={open} tabIndex={-1} aria-hidden="true" />
-
-            <motion.div
-              className={styles.couple}
-              initial={false}
-              animate={
-                opening && !reduced
-                  ? { scale: [1, 0.5, 0.3], x: ['0%', '18%', '20%'], y: ['0%', '-38%', '-47%'], opacity: [1, 1, 0] }
-                  : opening
-                    ? { opacity: 0 }
-                    : { scale: 1, x: '0%', y: '0%', opacity: 1 }
-              }
-              transition={
-                opening && !reduced
-                  ? { duration: 2.6, delay: 0.5, ease: 'easeInOut', times: [0, 0.74, 1] }
-                  : { duration: 0.4 }
-              }
-            >
-              <div className={`${styles.walker} ${opening && !reduced ? styles.walking : styles.resting}`}>
-                <img className={styles.coupleImage} src="/opening/couple.webp" alt="" fetchPriority="high" />
-              </div>
-            </motion.div>
           </div>
         </motion.div>
       </motion.div>
 
-      <div className={styles.fade} aria-hidden="true" />
+      <motion.div
+        className={styles.fade}
+        aria-hidden="true"
+        initial={false}
+        animate={{ opacity: opening ? 0.4 : 1 }}
+        transition={{ delay: 2.9, duration: 1.2 }}
+      />
       <GoldDust density={0.00007} />
 
       {/* The screen fills with light; the hero then emerges from the same glow. */}
@@ -136,15 +141,16 @@ export default function InvitationIntro({ defaultMusic = true, onOpen, onDone })
         className={styles.flash}
         aria-hidden="true"
         initial={false}
-        animate={{ opacity: opening && !reduced ? 1 : 0 }}
-        transition={{ delay: 2.65, duration: 0.75, ease: 'easeIn' }}
+        animate={{ opacity: opening && cinematic ? 1 : 0 }}
+        transition={{ delay: 4.7, duration: 0.55, ease: 'easeIn' }}
       />
 
       <motion.div
         className={styles.controls}
         initial={{ opacity: 0, y: 16 }}
-        animate={opening ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
-        transition={opening ? { duration: 0.4 } : { duration: 1.2, ease: EASE, delay: 0.6 }}
+        animate={opening ? { opacity: 0, y: 10 } : canOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        transition={opening ? { duration: 0.4 } : { duration: 1.2, ease: EASE, delay: 0.3 }}
+        style={{ pointerEvents: canOpen && !opening ? 'auto' : 'none' }}
       >
         <button type="button" className={`btn btn-gold ${styles.open}`} onClick={open} disabled={opening}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
